@@ -1,0 +1,60 @@
+plugins {
+    id "org.springframework.boot" version "2.5.5"
+    id "io.spring.dependency-management" version "1.0.11.RELEASE"
+    id "com.google.cloud.tools.jib" version "3.1.4"
+    id "com.github.johnrengelman.shadow" version "7.1.0"
+    id "java"
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+jib {
+    from {
+        image = "azul/zulu-openjdk-alpine:17-jre-headless"
+    }
+    container {
+        jvmFlags = ["-Xshare:auto", "-XX:TieredStopAtLevel=1", "-XX:CICompilerCount=1", "-XX:+UseSerialGC", "-Xmx512m"]
+        format = "OCI"
+    }
+    to {
+        image = "ghcr.io/nov1n/remarkable-pocket"
+        tags = ["0.0.1"]
+    }
+}
+
+group = "nl.carosi"
+version = "0.0.1"
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven {
+        url "https://jitpack.io"
+    }
+}
+
+dependencies {
+    implementation("com.positiondev.epublib:epublib-core:3.1") {
+        exclude group: "org.slf4j"
+    }
+    implementation("es.jlarriba:jrmapi:0.7") {
+        exclude group: "org.apache.logging.log4j"
+    }
+    implementation "net.lingala.zip4j:zip4j:1.2.4"
+    implementation "info.picocli:picocli:4.6.1"
+    implementation "com.fasterxml.jackson.core:jackson-core:2.13.0"
+    implementation "com.google.guava:guava:31.0.1-jre"
+    implementation "com.github.tchudyk:pocket-integration:1.2.0"
+    implementation "org.springframework:spring-aspects:5.3.11"
+    implementation "org.springframework.retry:spring-retry:1.3.1"
+    implementation "org.springframework.boot:spring-boot-starter-web:2.5.5"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:2.5.5"
+}
+
+test {
+    useJUnitPlatform()
+}
