@@ -24,7 +24,7 @@ final class RemarkableService {
             Jrmapi rmapi,
             MetadataProvider metadataProvider,
             @Value("${rm.storage-dir}") String rmStorageDir) {
-        if(!rmStorageDir.endsWith("/")) {
+        if (!rmStorageDir.endsWith("/")) {
             rmStorageDir += "/";
         }
         checkArgument(

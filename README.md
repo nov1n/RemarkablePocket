@@ -49,6 +49,8 @@ The first time you run the application, you will be asked to authorize Pocket an
 
 By default articles are synchronized to the `/Pocket/` directory on the Remarkable every 30 minutes.
 
+*TIP:* If you want to launch the program on startup and keep it running in the background you can use *launchd* (on Mac) or *systemd* (on Linux). On Mac copy [this](nl.carosi.remarkable-pocket.plist) file to `~/Library/LaunchAgents/` followed by: `launchctl load -w nl.carosi.remarkable-pocket.plist`. Logs will be sent to `~/.remarkable-pocket.log`.
+
 
 ## Configuration
 The default configuration can be changed by providing command-line arguments. Simply append these to the `docker run` command. Below is a list of all available options.

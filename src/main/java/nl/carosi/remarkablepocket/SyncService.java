@@ -1,6 +1,7 @@
 package nl.carosi.remarkablepocket;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
+import static nl.carosi.remarkablepocket.ConnectivityChecker.ensureConnected;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -58,10 +59,13 @@ final class SyncService {
 
     @Scheduled(fixedDelayString = "${sync.interval}")
     void sync() {
+        ensureConnected(LOG::error);
+
         try {
             syncImpl();
-        } catch (IOException e) {
-            LOG.error("Error occurred during sync.", e);
+        } catch (Exception e) {
+            LOG.error("Error occurred during sync: {}", e.getMessage());
+            LOG.debug("Stack trace:", e);
         }
 
         if (runOnce) {
@@ -108,13 +112,13 @@ final class SyncService {
             DocumentMetadata doc = documents.get(i);
             LOG.info(
                     "({}/{}) Marking '{}' as read on Pocket...",
-                    i+1,
+                    i + 1,
                     nDocs,
                     doc.doc().getVissibleName());
             pocketService.archive(doc.pocketId());
             LOG.info(
                     "({}/{}) Deleting '{}' from Remarkable...",
-                    i+1,
+                    i + 1,
                     nDocs,
                     doc.doc().getVissibleName());
             remarkableService.delete(doc.doc());

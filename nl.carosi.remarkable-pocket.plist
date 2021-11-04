@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>nl.carosi.remarkable-pocket</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/sh</string>
+       <string>-c</string>
+       <string>while ! /usr/local/bin/docker version > /dev/null 2>&amp;1; do sleep 5; done &amp;&amp; /usr/local/bin/docker run --env TZ=$(date +%Z) -v ~/.remarkable-pocket:/root/.remarkable-pocket ghcr.io/nov1n/remarkable-pocket:0.0.1 1>>$HOME/.remarkable-pocket.log 2>&amp;1</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+  </dict>
+</plist>

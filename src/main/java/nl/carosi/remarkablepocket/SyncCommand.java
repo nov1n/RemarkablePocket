@@ -3,6 +3,7 @@ package nl.carosi.remarkablepocket;
 import static java.util.Map.entry;
 import static java.util.UUID.randomUUID;
 import static java.util.concurrent.TimeUnit.MINUTES;
+import static nl.carosi.remarkablepocket.ConnectivityChecker.ensureConnected;
 import static nl.carosi.remarkablepocket.PocketService.getAccessToken;
 import static org.springframework.boot.Banner.Mode.OFF;
 import static org.springframework.boot.WebApplicationType.NONE;
@@ -40,7 +41,6 @@ import picocli.CommandLine.Option;
         version = "0.1",
         mixinStandardHelpOptions = true)
 class SyncCommand implements Callable<Integer> {
-    // TODO: Add default error converter
     @Option(
             names = {"-f", "--tag-filter"},
             description = "Only download Pocket articles with the this tag.",
@@ -113,6 +113,8 @@ class SyncCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws IOException {
+        ensureConnected(System.err::println);
+
         Map<String, Object> cliProperties =
                 Map.ofEntries(
                         entry("pocket.archive-read", Boolean.toString(!noArchive)),
@@ -155,7 +157,7 @@ class SyncCommand implements Callable<Integer> {
     private Properties createAuthProperties(Path authFilePath) throws IOException {
         Console console = System.console();
         if (console == null) {
-            System.out.println(
+            System.err.println(
                     "No console found. If you're using Docker please add the '-it' flags.\n");
             System.exit(1);
         }
