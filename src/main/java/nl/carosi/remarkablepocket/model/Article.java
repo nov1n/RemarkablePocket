@@ -7,6 +7,10 @@ public final record Article(String id, String url, String title) {
     }
 
     private static String sanitize(String title) {
-        return title.replaceAll("/", " ").replaceAll(" +", " ").strip();
+        return title
+                .replaceAll("[‘’\"]", "'")
+                .replaceAll(":", " -")
+                .replaceAll("[/?<>*.|\\\\]", " ")
+                .replaceAll(" +", " ").strip();
     }
 }

@@ -77,6 +77,7 @@ Synchronizes articles from Pocket to the Remarkable tablet.
 
 ## Limitations
 - Articles behind a paywall cannot be downloaded.
+- Articles on websites with sophisticated DDOS protection cannot be downloaded.
 - Articles that use javascript to load the the content cannot be downloaded.
 
 ## Thanks

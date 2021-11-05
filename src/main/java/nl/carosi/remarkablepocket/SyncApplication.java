@@ -1,6 +1,7 @@
 package nl.carosi.remarkablepocket;
 
 import es.jlarriba.jrmapi.Jrmapi;
+import java.util.concurrent.atomic.AtomicReference;
 import nl.siegmann.epublib.epub.EpubReader;
 import nl.siegmann.epublib.epub.EpubWriter;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,10 +23,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
     PocketService.class,
     RemarkableService.class,
     SyncService.class,
+    TokenRefresher.class
 })
 public class SyncApplication {
     @Bean
-    Jrmapi jrmapi(@Value("${rm.device-token}") String deviceToken) {
-        return new Jrmapi(deviceToken);
+    AtomicReference<Jrmapi> jrmapi(@Value("${rm.device-token}") String deviceToken) {
+        return new AtomicReference<>(new Jrmapi(deviceToken));
     }
 }

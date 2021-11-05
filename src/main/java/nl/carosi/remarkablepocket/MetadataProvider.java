@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.PostConstruct;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -18,14 +19,19 @@ import net.lingala.zip4j.io.ZipInputStream;
 import net.lingala.zip4j.model.FileHeader;
 import nl.carosi.remarkablepocket.model.DocumentMetadata;
 import nl.siegmann.epublib.epub.EpubReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class MetadataProvider {
-    private final Jrmapi rmapi;
+    private static final Logger LOG = LoggerFactory.getLogger(MetadataProvider.class);
+
+    private final AtomicReference<Jrmapi> rmapi;
     private final EpubReader epubReader;
     private final ObjectMapper objectMapper;
     private Path workDir;
 
-    public MetadataProvider(Jrmapi rmapi, EpubReader epubReader, ObjectMapper objectMapper) {
+    public MetadataProvider(
+            AtomicReference<Jrmapi> rmapi, EpubReader epubReader, ObjectMapper objectMapper) {
         this.rmapi = rmapi;
         this.epubReader = epubReader;
         this.objectMapper = objectMapper;
@@ -34,13 +40,15 @@ final class MetadataProvider {
     @PostConstruct
     void createWorkDir() throws IOException {
         workDir = Files.createTempDirectory(null);
+        LOG.debug("Created temporary working directory: {}.", workDir);
     }
 
     DocumentMetadata getMetadata(Document doc) {
+        LOG.debug("Getting metadata for document: {}.", doc.getVissibleName());
         ZipFile zip;
         String fileHash;
         try {
-            zip = new ZipFile(rmapi.fetchZip(doc, workDir.toString() + File.separator));
+            zip = new ZipFile(rmapi.get().fetchZip(doc, workDir.toString() + File.separator));
             fileHash = getFileHash(zip);
         } catch (ZipException e) {
             throw new RuntimeException(e);

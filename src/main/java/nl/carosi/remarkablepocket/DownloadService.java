@@ -28,6 +28,7 @@ final class DownloadService {
     @PostConstruct
     void createStorageDir() throws IOException {
         storageDir = Files.createTempDirectory(null);
+        LOG.debug("Created temporary storage directory: {}.", storageDir);
     }
 
     @SuppressWarnings("UnstableApiUsage")

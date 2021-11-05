@@ -6,6 +6,7 @@ import es.jlarriba.jrmapi.Jrmapi;
 import es.jlarriba.jrmapi.model.Document;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
 import nl.carosi.remarkablepocket.model.DocumentMetadata;
@@ -15,13 +16,13 @@ import org.springframework.beans.factory.annotation.Value;
 
 final class RemarkableService {
     private static final Logger LOG = LoggerFactory.getLogger(RemarkableService.class);
-    private final Jrmapi rmapi;
+    private final AtomicReference<Jrmapi> rmapi;
     private final MetadataProvider metadataProvider;
     private final String rmStorageDir;
     private String rmStorageDirId = "";
 
     public RemarkableService(
-            Jrmapi rmapi,
+            AtomicReference<Jrmapi> rmapi,
             MetadataProvider metadataProvider,
             @Value("${rm.storage-dir}") String rmStorageDir) {
         if (!rmStorageDir.endsWith("/")) {
@@ -40,12 +41,12 @@ final class RemarkableService {
         String[] dirs = rmStorageDir.substring(1, rmStorageDir.length() - 1).split("/");
         for (final String dir : dirs) {
             rmStorageDirId =
-                    rmapi.listDocs().stream()
+                    rmapi.get().listDocs().stream()
                             .filter(e -> e.getParent().equals(rmStorageDirId))
                             .filter(e -> e.getVissibleName().equals(dir))
                             .findFirst()
                             .map(Document::getID)
-                            .orElseGet(() -> rmapi.createDir(dir, rmStorageDirId));
+                            .orElseGet(() -> rmapi.get().createDir(dir, rmStorageDirId));
         }
     }
 
@@ -73,22 +74,22 @@ final class RemarkableService {
     }
 
     void delete(Document doc) {
-        rmapi.deleteEntry(doc);
+        rmapi.get().deleteEntry(doc);
     }
 
     private void logPages(DocumentMetadata meta) {
         LOG.debug(
-                "{}: Current page: {}, page count: {}",
+                "{}: Current page: {}, page count: {}.",
                 meta.doc().getVissibleName(),
                 meta.doc().getCurrentPage() + 1,
                 meta.pageCount());
     }
 
     private Stream<Document> docsStream() {
-        return rmapi.listDocs().stream().filter(e -> e.getParent().equals(rmStorageDirId));
+        return rmapi.get().listDocs().stream().filter(e -> e.getParent().equals(rmStorageDirId));
     }
 
     private void upload(Path path) {
-        rmapi.uploadDoc(path.toFile(), rmStorageDirId);
+        rmapi.get().uploadDoc(path.toFile(), rmStorageDirId);
     }
 }
