@@ -99,7 +99,7 @@ final class SyncService {
         }
 
         downloadService.clearDownloads();
-        List<Path> downloads = downloadService.download(unsynced, articleLimit - nArticlesOnRm);
+        List<Path> downloads = downloadService.download(unsynced, articleLimit, nArticlesOnRm);
         remarkableService.upload(downloads);
         LOG.info("Completed sync in {}.", humanReadable(Duration.between(start, Instant.now())));
     }

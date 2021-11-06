@@ -32,10 +32,14 @@ final class DownloadService {
     }
 
     @SuppressWarnings("UnstableApiUsage")
-    List<Path> download(List<Article> articles, int limit) {
+    List<Path> download(List<Article> articles, int articleLimit, int nArticlesOnRm) {
+        int limit = articleLimit - nArticlesOnRm;
         int pocketCount = articles.size();
         long total = Math.min(pocketCount, limit);
-        LOG.info("Downloading {} unread article(s) from Pocket ({} in total).", total, pocketCount);
+        LOG.info(
+                "Found {} unread article(s) on Remarkable. Downloading {} more from Pocket.",
+                nArticlesOnRm,
+                total);
         return Streams.mapWithIndex(articles.stream(), (e, i) -> logProgress(e, i, total))
                 .filter(e -> !invalidArticles.contains(e))
                 .map(this::tryDownload)

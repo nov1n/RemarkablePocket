@@ -10,7 +10,7 @@ public final record Article(String id, String url, String title) {
         return title
                 .replaceAll("[‘’\"]", "'")
                 .replaceAll(":", " -")
-                .replaceAll("[/?<>*.|\\\\]", " ")
+                .replaceAll("[/\\\\]", " ")
                 .replaceAll(" +", " ").strip();
     }
 }

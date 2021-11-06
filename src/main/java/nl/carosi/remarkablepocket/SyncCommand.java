@@ -38,7 +38,8 @@ import picocli.CommandLine.Option;
         description = "Synchronizes articles from Pocket to the Remarkable tablet.",
         sortOptions = false,
         usageHelpAutoWidth = true,
-        version = "0.1",
+        // TODO: Read from gradle.properties
+        version = "0.0.2",
         mixinStandardHelpOptions = true)
 class SyncCommand implements Callable<Integer> {
     @Option(
@@ -72,7 +73,7 @@ class SyncCommand implements Callable<Integer> {
             names = {"-i", "--interval"},
             description = "The interval between subsequent synchronizations.",
             arity = "1",
-            defaultValue = "30m",
+            defaultValue = "60m",
             showDefaultValue = ALWAYS)
     private String interval;
 
@@ -99,6 +100,13 @@ class SyncCommand implements Callable<Integer> {
             hidden = true)
     private String authFile;
 
+    // TODO: Create composite logger
+    @Option(
+            names = {"-v", "--verbose"},
+            description = "Enable debug logging.",
+            arity = "0")
+    private boolean verbose;
+
     @Option(
             names = {"-p", "--port"},
             description = "The port for the authorization callback server.",
@@ -122,7 +130,9 @@ class SyncCommand implements Callable<Integer> {
                         entry("rm.article-limit", articleLimit),
                         entry("sync.interval", "PT" + interval),
                         entry("sync.run-once", Boolean.toString(runOnce)),
-                        entry("pocket.tag-filter", tagFilter));
+                        entry("pocket.tag-filter", tagFilter),
+                        entry("logging.level" + this.getClass().getPackageName(), verbose ? "DEBUG" : "INFO")
+                );
 
         new SpringApplicationBuilder(SyncApplication.class)
                 .logStartupInfo(false)

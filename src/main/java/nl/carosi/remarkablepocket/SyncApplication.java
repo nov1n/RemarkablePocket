@@ -2,6 +2,9 @@ package nl.carosi.remarkablepocket;
 
 import es.jlarriba.jrmapi.Jrmapi;
 import java.util.concurrent.atomic.AtomicReference;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import nl.siegmann.epublib.epub.EpubReader;
 import nl.siegmann.epublib.epub.EpubWriter;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,5 +32,11 @@ public class SyncApplication {
     @Bean
     AtomicReference<Jrmapi> jrmapi(@Value("${rm.device-token}") String deviceToken) {
         return new AtomicReference<>(new Jrmapi(deviceToken));
+    }
+
+    @Bean
+    DocumentBuilder documentBuilder() throws ParserConfigurationException {
+        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+        return builderFactory.newDocumentBuilder();
     }
 }

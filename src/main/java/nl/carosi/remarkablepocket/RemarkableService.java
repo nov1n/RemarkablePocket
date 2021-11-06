@@ -82,7 +82,7 @@ final class RemarkableService {
                 "{}: Current page: {}, page count: {}.",
                 meta.doc().getVissibleName(),
                 meta.doc().getCurrentPage() + 1,
-                meta.pageCount());
+                meta.pageCount() == 0 ? "unknown" : meta.pageCount());
     }
 
     private Stream<Document> docsStream() {
