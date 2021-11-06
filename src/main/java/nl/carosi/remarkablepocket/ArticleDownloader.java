@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -65,8 +64,16 @@ class ArticleDownloader {
     }
 
     Optional<Path> tryDownload(Article article, Path storageDir) {
-        Path downloadPath = storageDir.resolve(article.title() + "." + getFileType());
+        try {
+            return tryDownloadImpl(article, storageDir);
+        } catch (IOException | RuntimeException e) {
+            LOG.error("Failed to download article {}.", e.getMessage());
+            LOG.debug("Stack trace: ", e);
+            return Optional.empty();
+        }
+    }
 
+    private Optional<Path> tryDownloadImpl(Article article, Path storageDir) throws IOException {
         DownloadRequest req =
                 new DownloadRequest(
                         article.url(),
@@ -77,6 +84,7 @@ class ArticleDownloader {
         String downloadId = restTemplate.postForObject(BASE_URL, req, DownloadResponse.class).id();
         self.waitUntilReady(downloadId);
 
+        Path downloadPath = storageDir.resolve(article.title() + "." + getFileType());
         try (OutputStream downloadStream =
                 Files.newOutputStream(downloadPath, CREATE, WRITE, TRUNCATE_EXISTING)) {
             restTemplate.execute(
@@ -84,16 +92,8 @@ class ArticleDownloader {
                     HttpMethod.GET,
                     null,
                     res -> res.getBody().transferTo(downloadStream));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
-
-        try {
-            formatEpub(downloadPath, article.title());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-
+        formatEpub(downloadPath, article.title());
         return isValid(downloadPath) ? Optional.of(downloadPath) : Optional.empty();
     }
 
@@ -101,7 +101,7 @@ class ArticleDownloader {
         return "epub";
     }
 
-    private boolean isValid(Path article) {
+    private boolean isValid(Path article) throws IOException {
         Resource resource;
         try (InputStream articleStream = Files.newInputStream(article)) {
             resource =
@@ -110,8 +110,6 @@ class ArticleDownloader {
                             .getResources()
                             .getResourceMap()
                             .get("content/s1.xhtml");
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
 
         try (BufferedReader contentReader =
@@ -121,17 +119,16 @@ class ArticleDownloader {
             String content = CharStreams.toString(contentReader);
             boolean isValid = content.length() > MIN_VALID_CONTENT_SIZE;
             if (!isValid) {
-                LOG.warn("No content found. Skipping...");
+                LOG.warn(
+                        "Downloaded article is invalid. See https://github.com/nov1n/RemarkablePocket#limitations for possible causes.");
             }
             return isValid;
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
     }
 
     @Retryable(
             value = RuntimeException.class,
-            maxAttempts = 10,
+            maxAttempts = 5,
             backoff = @Backoff(delay = RETRY_INTERVAL))
     @VisibleForTesting
     void waitUntilReady(String downloadId) {
@@ -139,11 +136,9 @@ class ArticleDownloader {
                 restTemplate.getForObject(
                         String.format(STATUS_URL_TEMPL, downloadId), StatusResponse.class);
         int progress = res.progress();
-        LOG.debug(
-                "Status: {} progress: {}%. Retrying in {}ms.",
-                res.message(), progress, RETRY_INTERVAL);
+        LOG.debug("Status: {} progress: {}%", res.message(), progress);
         if (progress != 100) {
-            throw new RuntimeException();
+            throw new RuntimeException("Epub generation error.");
         }
     }
 

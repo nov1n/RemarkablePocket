@@ -9,7 +9,7 @@ An example run of the program can be found below:
 [2021-11-02 14:21:25] Found 1 read article(s) on Remarkable.
 [2021-11-02 14:21:25] (1/1) Marking 'Getting Unstuck' as read on Pocket...
 [2021-11-02 14:21:25] (1/1) Deleting 'Getting Unstuck' from Remarkable...
-[2021-11-02 14:21:27] Downloading 5 unread article(s) from Pocket (257 in total).
+[2021-11-02 14:21:27] Found 5 unread article(s) on Remarkable. Downloading 5 more from Pocket.
 [2021-11-02 14:21:27] (1/5) Downloading: 'What Modules Are About'.
 [2021-11-02 14:21:33] (2/5) Downloading: 'Pursue High-quality Leisure'.
 [2021-11-02 14:21:39] (3/5) Downloading: 'Hunting down a C memory leak in a Go program'.
@@ -43,7 +43,7 @@ An example run of the program can be found below:
 The easiest way to run the application is using Docker. First install Docker for your platform from https://docs.docker.com/get-docker/. Then run the following command to start the application on Linux or Mac (I have not tested it on Windows yet):
 
 ```
-touch ~/.remarkable-pocket && docker run -it --env TZ=$(date +%Z) -p 65112:65112 -v ~/.remarkable-pocket:/root/.remarkable-pocket ghcr.io/nov1n/remarkable-pocket:0.0.1
+touch ~/.remarkable-pocket && docker run -it --env TZ=$(date +%Z) -p 65112:65112 -v ~/.remarkable-pocket:/root/.remarkable-pocket ghcr.io/nov1n/remarkable-pocket:0.0.2
 ```
 The first time you run the application, you will be asked to authorize Pocket and Remarkable Cloud. Once you have done this subsequent runs will read the credentials from the `~/.remarkable-pocket` file.
 
@@ -65,11 +65,12 @@ Synchronizes articles from Pocket to the Remarkable tablet.
                             The maximum number of Pocket articles to be present on the Remarkable.
                               Default: 10
   -i, --interval=<interval> The interval between subsequent synchronizations.
-                              Default: 30m
+                              Default: 60m
   -r, --reset-credentials   Reset all credentials.
   -d, --storage-dir=<storageDir>
                             The storage directory on the Remarkable in which to store downloaded Pocket articles.
                               Default: /Pocket/
+  -v, --verbose             Enable verbose logging.
   -h, --help                Show this help message and exit.
   -V, --version             Print version information and exit.
 
