@@ -39,7 +39,7 @@ import picocli.CommandLine.Option;
         sortOptions = false,
         usageHelpAutoWidth = true,
         // TODO: Read from gradle.properties
-        version = "0.0.2",
+        version = "0.0.3",
         mixinStandardHelpOptions = true)
 class SyncCommand implements Callable<Integer> {
     @Option(
@@ -131,7 +131,7 @@ class SyncCommand implements Callable<Integer> {
                         entry("sync.interval", "PT" + interval),
                         entry("sync.run-once", Boolean.toString(runOnce)),
                         entry("pocket.tag-filter", tagFilter),
-                        entry("logging.level" + this.getClass().getPackageName(), verbose ? "DEBUG" : "INFO")
+                        entry("logging.level." + this.getClass().getPackageName(), verbose ? "DEBUG" : "INFO")
                 );
 
         new SpringApplicationBuilder(SyncApplication.class)

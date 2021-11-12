@@ -43,7 +43,7 @@ An example run of the program can be found below:
 The easiest way to run the application is using Docker. First install Docker for your platform from https://docs.docker.com/get-docker/. Then run the following command to start the application on Linux or Mac (I have not tested it on Windows yet):
 
 ```
-touch ~/.remarkable-pocket && docker run -it --env TZ=$(date +%Z) -p 65112:65112 -v ~/.remarkable-pocket:/root/.remarkable-pocket ghcr.io/nov1n/remarkable-pocket:0.0.2
+touch ~/.remarkable-pocket && docker run -it --env TZ=$(date +%Z) -p 65112:65112 -v ~/.remarkable-pocket:/root/.remarkable-pocket ghcr.io/nov1n/remarkable-pocket:0.0.3
 ```
 The first time you run the application, you will be asked to authorize Pocket and Remarkable Cloud. Once you have done this subsequent runs will read the credentials from the `~/.remarkable-pocket` file.
 

@@ -19,6 +19,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableRetry
 @Import({
     ArticleDownloader.class,
+    AuthService.class,
     DownloadService.class,
     EpubReader.class,
     EpubWriter.class,
@@ -26,7 +27,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
     PocketService.class,
     RemarkableService.class,
     SyncService.class,
-    TokenRefresher.class
 })
 public class SyncApplication {
     @Bean

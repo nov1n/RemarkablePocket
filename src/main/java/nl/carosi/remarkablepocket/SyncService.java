@@ -24,6 +24,7 @@ final class SyncService {
     private final PocketService pocketService;
     private final DownloadService downloadService;
     private final RemarkableService remarkableService;
+    private final AuthService authService;
     private final ApplicationContext appContext;
     private final int articleLimit;
     private final boolean archiveRead;
@@ -34,6 +35,7 @@ final class SyncService {
             PocketService pocketService,
             DownloadService downloadService,
             RemarkableService remarkableService,
+            AuthService authService,
             ApplicationContext appContext,
             @Value("${rm.article-limit}") int articleLimit,
             @Value("${pocket.archive-read}") boolean archiveRead,
@@ -42,6 +44,7 @@ final class SyncService {
         this.pocketService = pocketService;
         this.downloadService = downloadService;
         this.remarkableService = remarkableService;
+        this.authService = authService;
         this.appContext = appContext;
         this.articleLimit = articleLimit;
         this.archiveRead = archiveRead;
@@ -60,6 +63,7 @@ final class SyncService {
     @Scheduled(fixedDelayString = "${sync.interval}")
     void sync() {
         ensureConnected(LOG::error);
+        authService.ensureValid();
 
         try {
             syncImpl();
