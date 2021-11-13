@@ -83,7 +83,7 @@ Synchronizes articles from Pocket to the Remarkable tablet.
 
 ## Thanks
 - https://epub.press/ for providing a free epub generator API. Consider donating to support this project.
-- https://github.com/juruen/rmapi for providing a Java API for the Remarkable Cloud.
+- https://github.com/jlarriba/jrmapi for providing a Java API for the Remarkable Cloud.
 
 ## Support
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/nov1n) if you want to say thanks. :-)

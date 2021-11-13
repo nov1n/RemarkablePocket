@@ -97,7 +97,7 @@ final class SyncService {
                 pocketService.getArticles().stream()
                         .filter(e -> !articlesOnRm.contains(e.title()))
                         .collect(Collectors.toList());
-        if (unsynced.size() == 0) {
+        if (unsynced.isEmpty()) {
             LOG.info("All Pocket articles are synced with Remarkable.");
             return;
         }
