@@ -81,6 +81,15 @@ Synchronizes articles from Pocket to the Remarkable tablet.
 - Articles on websites with sophisticated DDOS protection cannot be downloaded.
 - Articles that use javascript to load the the content cannot be downloaded.
 
+## Build Instructions
+The project uses Gradle as a build tool and can be built using the `gradle build` command. This will generate jars in `build/libs/`. To run the jar, use the `java -jar build/libs/remarkable-pocket-x.x.x.jar` command, replacing `x.x.x` with the correct version.
+
+### Building docker
+To build the docker image run `gradle jib`. This will use a dynamically generated Dockerfile based on the configuration in the `jib` section of the `build.gradle` file. To run the image, see the command in the [Usage](#usage) section.
+
+### Other package formats
+If you would like to package the application in another format e.g. `deb`, `nix` or `AUR`, I'm happy to review a Pull Request.
+
 ## Thanks
 - https://epub.press/ for providing a free epub generator API. Consider donating to support this project.
 - https://github.com/jlarriba/jrmapi for providing a Java API for the Remarkable Cloud.
