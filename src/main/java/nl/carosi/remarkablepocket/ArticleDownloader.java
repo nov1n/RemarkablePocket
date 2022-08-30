@@ -67,7 +67,7 @@ class ArticleDownloader {
         try {
             return tryDownloadImpl(article, storageDir);
         } catch (IOException | RuntimeException e) {
-            LOG.error("Failed to download article {}.", e.getMessage());
+            LOG.error("Failed to download article: {}.", e.getMessage());
             LOG.debug("Stack trace: ", e);
             return Optional.empty();
         }
@@ -165,9 +165,9 @@ class ArticleDownloader {
         }
     }
 
-    private final record DownloadRequest(String author, String publisher, String[] urls) {}
+    private record DownloadRequest(String author, String publisher, String[] urls) {}
 
-    private final record DownloadResponse(String id) {}
+    private record DownloadResponse(String id) {}
 
-    private final record StatusResponse(String message, int progress) {}
+    private record StatusResponse(String message, int progress) {}
 }

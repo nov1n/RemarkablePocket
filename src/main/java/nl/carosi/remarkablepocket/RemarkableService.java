@@ -2,12 +2,8 @@ package nl.carosi.remarkablepocket;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import es.jlarriba.jrmapi.Jrmapi;
-import es.jlarriba.jrmapi.model.Document;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
 import nl.carosi.remarkablepocket.model.DocumentMetadata;
 import org.slf4j.Logger;
@@ -16,13 +12,12 @@ import org.springframework.beans.factory.annotation.Value;
 
 final class RemarkableService {
     private static final Logger LOG = LoggerFactory.getLogger(RemarkableService.class);
-    private final AtomicReference<Jrmapi> rmapi;
+    private final RemarkableApi rmapi;
     private final MetadataProvider metadataProvider;
     private final String rmStorageDir;
-    private String rmStorageDirId = "";
 
     public RemarkableService(
-            AtomicReference<Jrmapi> rmapi,
+            RemarkableApi rmapi,
             MetadataProvider metadataProvider,
             @Value("${rm.storage-dir}") String rmStorageDir) {
         if (!rmStorageDir.endsWith("/")) {
@@ -37,29 +32,20 @@ final class RemarkableService {
     }
 
     @PostConstruct
-    void findParentId() {
-        String[] dirs = rmStorageDir.substring(1, rmStorageDir.length() - 1).split("/");
-        for (final String dir : dirs) {
-            rmStorageDirId =
-                    rmapi.get().listDocs().stream()
-                            .filter(e -> e.getParent().equals(rmStorageDirId))
-                            .filter(e -> e.getVissibleName().equals(dir))
-                            .findFirst()
-                            .map(Document::getID)
-                            .orElseGet(() -> rmapi.get().createDir(dir, rmStorageDirId));
-        }
+    void createStorageDir() {
+        rmapi.createDir(rmStorageDir);
     }
 
     List<String> listDocumentNames() {
-        return docsStream().map(Document::getVissibleName).toList();
+        return rmapi.list();
     }
 
     List<DocumentMetadata> listReadDocuments() {
-        return docsStream()
+        return rmapi.list().stream()
                 .map(metadataProvider::getMetadata)
                 .peek(this::logPages)
                 // Current page starts counting at 0.
-                .filter(e -> e.doc().getCurrentPage() + 1 == e.pageCount())
+                .filter(e -> e.doc().currentPage() + 1 == e.pageCount())
                 .toList();
     }
 
@@ -73,23 +59,19 @@ final class RemarkableService {
         }
     }
 
-    void delete(Document doc) {
-        rmapi.get().deleteEntry(doc);
+    void delete(String name) {
+        rmapi.delete(name);
     }
 
     private void logPages(DocumentMetadata meta) {
         LOG.debug(
                 "{}: Current page: {}, page count: {}.",
-                meta.doc().getVissibleName(),
-                meta.doc().getCurrentPage() + 1,
+                meta.doc().name(),
+                meta.doc().currentPage() + 1,
                 meta.pageCount() == 0 ? "unknown" : meta.pageCount());
     }
 
-    private Stream<Document> docsStream() {
-        return rmapi.get().listDocs().stream().filter(e -> e.getParent().equals(rmStorageDirId));
-    }
-
     private void upload(Path path) {
-        rmapi.get().uploadDoc(path.toFile(), rmStorageDirId);
+        rmapi.upload(path.toAbsolutePath().toString());
     }
 }

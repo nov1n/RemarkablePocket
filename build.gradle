@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "nl.carosi"
-version = "0.0.3"
+version = "0.1.0"
 
 java {
     toolchain {
@@ -17,7 +17,7 @@ java {
 
 jib {
     from {
-        image = "azul/zulu-openjdk-alpine:17-jre-headless"
+        image = "azul/zulu-openjdk:17-jre-headless"
     }
     container {
         jvmFlags = ["-Xshare:auto", "-XX:TieredStopAtLevel=1", "-XX:CICompilerCount=1", "-XX:+UseSerialGC", "-Xmx512m"]
@@ -26,6 +26,12 @@ jib {
     to {
         image = "ghcr.io/nov1n/remarkable-pocket"
         tags = [project.version.toString()]
+    }
+    extraDirectories {
+        paths = 'src/main/jib'
+        permissions = [
+                '/usr/local/bin/rmapi': '755'
+        ]
     }
 }
 
@@ -40,9 +46,6 @@ repositories {
 dependencies {
     implementation("com.positiondev.epublib:epublib-core:3.1") {
         exclude group: "org.slf4j"
-    }
-    implementation("es.jlarriba:jrmapi:0.7") {
-        exclude group: "org.apache.logging.log4j"
     }
     implementation "net.lingala.zip4j:zip4j:1.2.4"
     implementation "info.picocli:picocli:4.6.1"
