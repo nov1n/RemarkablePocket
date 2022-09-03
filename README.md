@@ -1,6 +1,8 @@
 ![Example article](assets/logo-title.png)
 
-*Remarkable Pocket* synchronizes articles from [Pocket](https://getpocket.com) to your [Remarkable](https://remarkable.com/) tablet. It can be run on your computer or on a server. Because it does not run on the device itself this approach saves battery life, and is resistant to Remarkable software updates.
+*Remarkable Pocket* synchronizes articles from [Pocket](https://getpocket.com) to
+your [Remarkable](https://remarkable.com/) tablet. It can be run on your computer or on a server. Because it does not
+run on the device itself this approach saves battery life, and is resistant to Remarkable software updates.
 
 An example run of the program can be found below:
 
@@ -32,28 +34,48 @@ An example run of the program can be found below:
 </details>
 
 ## Features
+
 - **No installation required.** The application can be run with a single command.
-- **Works on Remarkable 1 and 2.** 
+- **Works on Remarkable 1 and 2.**
 - **Full support for images, code blocks, and formulas.**
 - **Articles are downloaded as epubs.** This allows you to customize the font, font size, margins, etc.
-- **Automatically archive read articles on Pocket.** When you finish reading an article and close it while on the last page, it will be automatically deleted from the Remarkable and archived on Pocket. A new unread article will be downloaded in its place.
-- **Download articles from Pocket with a given tag.** If a `tag-filter` (see [Configuration](#configuration)) is supplied then only articles with that tag will be downloaded.
+- **Automatically archive read articles on Pocket.** When you finish reading an article and close it while on the last
+  page, it will be automatically deleted from the Remarkable and archived on Pocket. A new unread article will be
+  downloaded in its place.
+- **Download articles from Pocket with a given tag.** If a `tag-filter` (see [Configuration](#configuration)) is
+  supplied then only articles with that tag will be downloaded.
 
 ## Usage
-The easiest way to run the application is using Docker. First install Docker for your platform from https://docs.docker.com/get-docker/. Then run the following command to start the application on Linux or Mac (I have not tested it on Windows yet):
+
+The easiest way to run the application is using Docker. First install Docker for your platform
+from https://docs.docker.com/get-docker/. Then run the following command to start the application on Linux or Mac (I
+have not tested it on Windows yet):
 
 ```
-touch ~/.remarkable-pocket ~/.rmapi && mkdir -p ~/.rmapi-cache && docker run -it --env TZ=Europe/Amsterdam -p 65112:65112 -v ~/.remarkable-pocket:/root/.remarkable-pocket -v ~/.rmapi:/root/.rmapi -v ~/.rmapi-cache:/root/.cache/rmapi ghcr.io/nov1n/remarkable-pocket:0.1.0
+touch ~/.remarkable-pocket ~/.rmapi && mkdir -p ~/.rmapi-cache && docker run -it --env TZ=Europe/Amsterdam -p 65112:65112 -v ~/.remarkable-pocket:/root/.remarkable-pocket -v ~/.rmapi:/root/.rmapi -v ~/.rmapi-cache:/root/.cache/rmapi ghcr.io/nov1n/remarkable-pocket:0.2.0
 ```
-The first time you run the application, you will be asked to authorize Pocket and Remarkable Cloud. Once you have done this subsequent runs will read the credentials from the `~/.remarkable-pocket` and `~/.rmapi` file. You can also change the timezone in the command to match your location.
+
+The first time you run the application, you will be asked to authorize Pocket and Remarkable Cloud. Once you have done
+this subsequent runs will read the credentials from the `~/.remarkable-pocket` and `~/.rmapi` file. You can also change
+the timezone in the command to match your location.
 
 By default, articles are synchronized to the `/Pocket/` directory on the Remarkable every 60 minutes.
 
-*TIP:* If you want to launch the program on startup and keep it running in the background you can use *launchd* (on Mac) or *systemd* (on Linux). On Mac copy [this](nl.carosi.remarkable-pocket.plist) file to `~/Library/LaunchAgents/` followed by: `launchctl load -w nl.carosi.remarkable-pocket.plist`. Logs will be sent to `~/.remarkable-pocket.log`.
+*TIP:* If you want to launch the program on startup and keep it running in the background you can use *launchd* (on Mac)
+or *systemd* (on Linux). On Mac copy [this](nl.carosi.remarkable-pocket.plist) file to `~/Library/LaunchAgents/`
+followed by: `launchctl load -w nl.carosi.remarkable-pocket.plist`. Logs will be sent to `~/.remarkable-pocket.log`.
 
+## Raspberry Pi
+
+There is also a Docker image available for the Raspberry Pi, so the command in [Usage](#usage) will work. You do need a
+browser to complete the authentication flow. If your Pi runs without a screen I recommend using a VNC client when
+running the program for the first time.
 
 ## Configuration
-The default configuration can be changed by providing command-line arguments. Simply append these to the `docker run` command. Below is a list of all available options.
+
+The default configuration can be changed by providing command-line arguments. Simply append these to the `docker run`
+command. Below is a list of all available options.
+
 ```
 Usage: remarkable-pocket [-hnorV] [-d=<storageDir>] [-f=<tagFilter>] [-i=<interval>] [-l=<articleLimit>]
 Synchronizes articles from Pocket to the Remarkable tablet.
@@ -76,28 +98,45 @@ Synchronizes articles from Pocket to the Remarkable tablet.
 ```
 
 ## Limitations
+
 - Articles behind a paywall cannot be downloaded.
-- Articles on websites with sophisticated DDOS protection cannot be downloaded.
+- Articles on websites with DDOS protection or captcha cannot be downloaded.
 - Articles that use javascript to load the content cannot be downloaded.
 
 ## Build Instructions
-The project uses Gradle as a build tool and can be built using the `gradle build` command. This will generate jars in `build/libs/`. To run the jar, use the `java -jar build/libs/remarkable-pocket-x.x.x.jar` command, replacing `x.x.x` with the correct version.
+
+The project uses Gradle as a build tool and can be built using the `gradle build` command. This will generate jars
+in `build/libs/`. To run the jar, use the `java -jar build/libs/remarkable-pocket-x.x.x.jar` command, replacing `x.x.x`
+with the correct version.
 
 ### Building docker
-To build the docker image run `gradle jib`. This will use a dynamically generated Dockerfile based on the configuration in the `jib` section of the `build.gradle` file. To run the image, see the command in the [Usage](#usage) section.
+
+To build the docker image run `gradle jib`. This will use a dynamically generated Dockerfile based on the configuration
+in the `jib` section of the `build.gradle` file. To run the image, see the command in the [Usage](#usage) section.
 
 ### Other package formats
-If you would like to package the application in another format e.g. `deb`, `nix` or `AUR`, I'm happy to review a Pull Request.
+
+If you would like to package the application in another format e.g. `deb`, `nix` or `AUR`, I'm happy to review a Pull
+Request.
 
 ### Disclaimer
-RemarkablePocket uses rmapi to connect to Remarkable cloud. The newly released sync protocol is not yet tested through and may contain bugs. As [recommended](https://github.com/juruen/rmapi#warning-experimental-support-for-the-new-sync-protocol) by rmapi please make sure you have a backup of your files.
+
+RemarkablePocket uses rmapi to connect to Remarkable cloud. The newly released sync protocol is not yet tested through
+and may contain bugs.
+As [recommended](https://github.com/juruen/rmapi#warning-experimental-support-for-the-new-sync-protocol) by rmapi please
+make sure you have a backup of your files.
 
 ## Thanks
+
 - https://epub.press/ for providing a free epub generator API. Consider donating to support this project.
 - https://github.com/juruen/rmapi for providing a client for the Remarkable Cloud.
 
 ## Support
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/nov1n) if you want to say thanks. :-)
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/nov1n)
+if you want to say thanks. :-)
 
 ## Disclaimer
-The author(s) and contributor(s) are not associated with reMarkable AS, Norway. reMarkable is a registered trademark of reMarkable AS in some countries. Please see https://remarkable.com for their product.
+
+The author(s) and contributor(s) are not associated with reMarkable AS, Norway. reMarkable is a registered trademark of
+reMarkable AS in some countries. Please see https://remarkable.com for their product.

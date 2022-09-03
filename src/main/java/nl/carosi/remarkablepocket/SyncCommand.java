@@ -19,7 +19,7 @@ import picocli.CommandLine.Option;
         sortOptions = false,
         usageHelpAutoWidth = true,
         // TODO: Read from gradle.properties
-        version = "0.1.0",
+        version = "0.2.0",
         mixinStandardHelpOptions = true)
 class SyncCommand implements Callable<Integer> {
     @Option(
@@ -96,6 +96,9 @@ class SyncCommand implements Callable<Integer> {
     @Override
     public Integer call() {
         ensureConnected(System.err::println);
+
+        // Handle sigterm (^C)
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> Runtime.getRuntime().halt(1)));
 
         Map<String, Object> cliProperties =
                 Map.ofEntries(

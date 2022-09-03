@@ -31,7 +31,11 @@ public class RemarkableApi {
                     "WARNING!!!",
                     "  Using the new 1.5 sync",
                     "  Make sure you have a backup");
-    private static final String RMAPI_EXECUTABLE = "/usr/local/bin/rmapi";
+    private static final String RMAPI_EXECUTABLE =
+            "/usr/local/bin/rmapi"
+                    + (new File("/.dockerenv").exists()
+                            ? ("_" + System.getProperty("os.arch"))
+                            : "");
     private final String rmStorageDir;
     private final ObjectMapper objectMapper;
 

@@ -84,13 +84,15 @@ public class PocketAuthenticator {
         String authUrl = factory.getAuthUrl();
         LOG.info("Visit {} and authorize this application.\n", authUrl);
         try {
-            boolean terminated = execService.awaitTermination(1, MINUTES);
+            boolean terminated = execService.awaitTermination(5, MINUTES);
             if (!terminated) {
                 throw new InterruptedException();
             }
         } catch (InterruptedException e) {
             LOG.info("Pocket authorization timed out. Please try again.");
-            System.exit(1);
+            // System.exit doesn't work here. I suspect there is a deadlock in the
+            // 'logStream' method where it blocks on stdin.
+            Runtime.getRuntime().halt(1);
         }
 
         return factory.create();
