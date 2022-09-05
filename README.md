@@ -119,13 +119,6 @@ in the `jib` section of the `build.gradle` file. To run the image, see the comma
 If you would like to package the application in another format e.g. `deb`, `nix` or `AUR`, I'm happy to review a Pull
 Request.
 
-### Disclaimer
-
-RemarkablePocket uses rmapi to connect to Remarkable cloud. The newly released sync protocol is not yet tested through
-and may contain bugs.
-As [recommended](https://github.com/juruen/rmapi#warning-experimental-support-for-the-new-sync-protocol) by rmapi please
-make sure you have a backup of your files.
-
 ## Thanks
 
 - https://epub.press/ for providing a free epub generator API. Consider donating to support this project.
@@ -137,6 +130,10 @@ make sure you have a backup of your files.
 if you want to say thanks. :-)
 
 ## Disclaimer
-
 The author(s) and contributor(s) are not associated with reMarkable AS, Norway. reMarkable is a registered trademark of
 reMarkable AS in some countries. Please see https://remarkable.com for their product.
+
+RemarkablePocket uses rmapi to connect to Remarkable cloud. The newly released sync protocol is not yet tested through
+and may contain bugs.
+As [recommended](https://github.com/juruen/rmapi#warning-experimental-support-for-the-new-sync-protocol) by rmapi please
+make sure you have a backup of your files.
