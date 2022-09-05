@@ -5,14 +5,10 @@ import static nl.carosi.remarkablepocket.ArticleDownloader.POCKET_ID_SEPARATOR;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import es.jlarriba.jrmapi.Jrmapi;
-import es.jlarriba.jrmapi.model.Document;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -22,7 +18,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import nl.carosi.remarkablepocket.model.DocumentMetadata;
-import nl.siegmann.epublib.epub.EpubReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.xml.SimpleNamespaceContext;
@@ -32,20 +27,15 @@ import org.xml.sax.SAXException;
 final class MetadataProvider {
     private static final Logger LOG = LoggerFactory.getLogger(MetadataProvider.class);
 
-    private final AtomicReference<Jrmapi> rmapi;
-    private final EpubReader epubReader;
+    private final RemarkableApi rmapi;
     private final ObjectMapper objectMapper;
     private final DocumentBuilder documentBuilder;
     private final XPath publisherXpath;
     private Path workDir;
 
     public MetadataProvider(
-            AtomicReference<Jrmapi> rmapi,
-            EpubReader epubReader,
-            ObjectMapper objectMapper,
-            DocumentBuilder documentBuilder) {
+            RemarkableApi rmapi, ObjectMapper objectMapper, DocumentBuilder documentBuilder) {
         this.rmapi = rmapi;
-        this.epubReader = epubReader;
         this.objectMapper = objectMapper;
         this.documentBuilder = documentBuilder;
         this.publisherXpath = constructXpath();
@@ -66,11 +56,11 @@ final class MetadataProvider {
         LOG.debug("Created temporary working directory: {}.", workDir);
     }
 
-    DocumentMetadata getMetadata(Document doc) {
-        LOG.debug("Getting metadata for document: {}.", doc.getVissibleName());
+    DocumentMetadata getMetadata(String name) {
+        LOG.debug("Getting metadata for document: {}.", name);
         ZipFile zip;
         try {
-            zip = new ZipFile(rmapi.get().fetchZip(doc, workDir.toString() + File.separator));
+            zip = new ZipFile(rmapi.download(name, workDir.toString()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -81,7 +71,7 @@ final class MetadataProvider {
                 InputStream epub = zip.getInputStream(zip.getEntry(fileHash + ".epub"))) {
             int pageCount = objectMapper.readValue(lines, Lines.class).pageCount();
             String pocketId = extractPocketId(epub);
-            return new DocumentMetadata(doc, pageCount, pocketId);
+            return new DocumentMetadata(rmapi.info(name), pageCount, pocketId);
         } catch (IOException | SAXException | XPathExpressionException e) {
             throw new RuntimeException(e);
         }
@@ -113,5 +103,5 @@ final class MetadataProvider {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private final record Lines(int pageCount) {}
+    private record Lines(int pageCount) {}
 }

@@ -1,13 +1,13 @@
 plugins {
     id "org.springframework.boot" version "2.5.5"
     id "io.spring.dependency-management" version "1.0.11.RELEASE"
-    id "com.google.cloud.tools.jib" version "3.1.4"
+    id "com.google.cloud.tools.jib" version "3.3.0"
     id "com.github.johnrengelman.shadow" version "7.1.0"
     id "java"
 }
 
 group = "nl.carosi"
-version = "0.0.3"
+version = "0.2.0"
 
 java {
     toolchain {
@@ -17,15 +17,31 @@ java {
 
 jib {
     from {
-        image = "azul/zulu-openjdk-alpine:17-jre-headless"
+        image = "eclipse-temurin:17-jre"
+        platforms {
+            platform {
+                architecture = 'amd64'
+                os = 'linux'
+            }
+            platform {
+                architecture = 'arm'
+                os = 'linux'
+            }
+        }
+
     }
     container {
         jvmFlags = ["-Xshare:auto", "-XX:TieredStopAtLevel=1", "-XX:CICompilerCount=1", "-XX:+UseSerialGC", "-Xmx512m"]
-        format = "OCI"
     }
     to {
         image = "ghcr.io/nov1n/remarkable-pocket"
         tags = [project.version.toString()]
+    }
+    extraDirectories {
+        paths = 'src/main/jib'
+        permissions = [
+                '/usr/local/bin/rmapi*': '755'
+        ]
     }
 }
 
@@ -40,9 +56,6 @@ repositories {
 dependencies {
     implementation("com.positiondev.epublib:epublib-core:3.1") {
         exclude group: "org.slf4j"
-    }
-    implementation("es.jlarriba:jrmapi:0.7") {
-        exclude group: "org.apache.logging.log4j"
     }
     implementation "net.lingala.zip4j:zip4j:1.2.4"
     implementation "info.picocli:picocli:4.6.1"

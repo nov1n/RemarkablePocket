@@ -24,7 +24,6 @@ final class SyncService {
     private final PocketService pocketService;
     private final DownloadService downloadService;
     private final RemarkableService remarkableService;
-    private final AuthService authService;
     private final ApplicationContext appContext;
     private final int articleLimit;
     private final boolean archiveRead;
@@ -35,7 +34,6 @@ final class SyncService {
             PocketService pocketService,
             DownloadService downloadService,
             RemarkableService remarkableService,
-            AuthService authService,
             ApplicationContext appContext,
             @Value("${rm.article-limit}") int articleLimit,
             @Value("${pocket.archive-read}") boolean archiveRead,
@@ -44,7 +42,6 @@ final class SyncService {
         this.pocketService = pocketService;
         this.downloadService = downloadService;
         this.remarkableService = remarkableService;
-        this.authService = authService;
         this.appContext = appContext;
         this.articleLimit = articleLimit;
         this.archiveRead = archiveRead;
@@ -63,7 +60,6 @@ final class SyncService {
     @Scheduled(fixedDelayString = "${sync.interval}")
     void sync() {
         ensureConnected(LOG::error);
-        authService.ensureValid();
 
         try {
             syncImpl();
@@ -114,18 +110,10 @@ final class SyncService {
         LOG.info("Found {} read article(s) on Remarkable.", nDocs);
         for (int i = 0; i < nDocs; i++) {
             DocumentMetadata doc = documents.get(i);
-            LOG.info(
-                    "({}/{}) Marking '{}' as read on Pocket...",
-                    i + 1,
-                    nDocs,
-                    doc.doc().getVissibleName());
+            LOG.info("({}/{}) Marking '{}' as read on Pocket...", i + 1, nDocs, doc.doc().name());
             pocketService.archive(doc.pocketId());
-            LOG.info(
-                    "({}/{}) Deleting '{}' from Remarkable...",
-                    i + 1,
-                    nDocs,
-                    doc.doc().getVissibleName());
-            remarkableService.delete(doc.doc());
+            LOG.info("({}/{}) Deleting '{}' from Remarkable...", i + 1, nDocs, doc.doc().name());
+            remarkableService.delete(doc.doc().name());
         }
     }
 }

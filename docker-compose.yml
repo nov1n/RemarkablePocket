@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  remarkable-pocket:
+    image: ghcr.io/nov1n/remarkable-pocket:0.2.0
+    restart: always
+    ports:
+      - 65112:65112
+    volumes:
+      - ~/.remarkable-pocket:/root/.remarkable-pocket
+      - ~/.rmapi:/root/.rmapi
+      - ~/.rmapi-cache:/root/.cache/rmapi

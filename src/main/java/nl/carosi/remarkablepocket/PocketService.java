@@ -2,16 +2,15 @@ package nl.carosi.remarkablepocket;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 import nl.carosi.remarkablepocket.model.Article;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import pl.codeset.pocket.Pocket;
-import pl.codeset.pocket.PocketAuth;
-import pl.codeset.pocket.PocketAuthFactory;
 import pl.codeset.pocket.modify.ArchiveAction;
 import pl.codeset.pocket.modify.ModifyItemCmd;
+import pl.codeset.pocket.modify.ModifyResult;
 import pl.codeset.pocket.read.ContentType;
 import pl.codeset.pocket.read.DetailType;
 import pl.codeset.pocket.read.GetItemsCmd;
@@ -20,30 +19,14 @@ import pl.codeset.pocket.read.PocketItem;
 import pl.codeset.pocket.read.Sort;
 
 final class PocketService {
-    static final String CONSUMER_KEY = "99428-51e4648a4528a1faa799c738";
+    private static final Logger LOG = LoggerFactory.getLogger(PocketService.class);
 
-    private final String accessToken;
     private final String tagFilter;
-    private Pocket pocket;
+    private final Pocket pocket;
 
-    public PocketService(
-            @Value("${pocket.access-token}") String accessToken,
-            @Value("${pocket.tag-filter}") String tagFilter) {
-        this.accessToken = accessToken;
+    public PocketService(@Value("${pocket.tag-filter}") String tagFilter, Pocket pocket) {
         this.tagFilter = tagFilter;
-    }
-
-    static String getAccessToken(String redirectUrl, Consumer<String> prompt) throws IOException {
-        PocketAuthFactory factory = PocketAuthFactory.create(CONSUMER_KEY, redirectUrl);
-        prompt.accept(factory.getAuthUrl());
-        PocketAuth pocketAuth = factory.create();
-        return pocketAuth.getAccessToken();
-    }
-
-    @PostConstruct
-    private void auth() {
-        PocketAuth pocketAuth = PocketAuthFactory.createForAccessToken(CONSUMER_KEY, accessToken);
-        this.pocket = new Pocket(pocketAuth);
+        this.pocket = pocket;
     }
 
     List<Article> getArticles() throws IOException {
@@ -62,6 +45,13 @@ final class PocketService {
     }
 
     void archive(String id) throws IOException {
-        pocket.modify(new ModifyItemCmd.Builder().action(new ArchiveAction(id)).build());
+        ModifyResult res =
+                pocket.modify(new ModifyItemCmd.Builder().action(new ArchiveAction(id)).build());
+        if (res.getStatus() == 0) {
+            LOG.error(
+                    "Could not archive article on Pocket: {}. Please archive it manually: https://getpocket.com/read/{}.",
+                    res.getActionResults(),
+                    id);
+        }
     }
 }
