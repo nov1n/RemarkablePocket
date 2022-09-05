@@ -4,10 +4,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import nl.carosi.remarkablepocket.model.Article;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import pl.codeset.pocket.Pocket;
 import pl.codeset.pocket.modify.ArchiveAction;
 import pl.codeset.pocket.modify.ModifyItemCmd;
+import pl.codeset.pocket.modify.ModifyResult;
 import pl.codeset.pocket.read.ContentType;
 import pl.codeset.pocket.read.DetailType;
 import pl.codeset.pocket.read.GetItemsCmd;
@@ -16,6 +19,8 @@ import pl.codeset.pocket.read.PocketItem;
 import pl.codeset.pocket.read.Sort;
 
 final class PocketService {
+    private static final Logger LOG = LoggerFactory.getLogger(PocketService.class);
+
     private final String tagFilter;
     private final Pocket pocket;
 
@@ -40,6 +45,13 @@ final class PocketService {
     }
 
     void archive(String id) throws IOException {
-        pocket.modify(new ModifyItemCmd.Builder().action(new ArchiveAction(id)).build());
+        ModifyResult res =
+                pocket.modify(new ModifyItemCmd.Builder().action(new ArchiveAction(id)).build());
+        if (res.getStatus() == 0) {
+            LOG.error(
+                    "Could not archive article on Pocket: {}. Please archive it manually: https://getpocket.com/read/{}.",
+                    res.getActionResults(),
+                    id);
+        }
     }
 }
