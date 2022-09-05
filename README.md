@@ -1,7 +1,7 @@
 ![Example article](assets/logo-title.png)
 
 *Remarkable Pocket* synchronizes articles from [Pocket](https://getpocket.com) to
-your [Remarkable](https://remarkable.com/) tablet. It can be run on your computer or on a server. Because it does not
+your [Remarkable](https://remarkable.com/) tablet. It can be run on your computer on a server, or on your Raspberry Pi. Because it does not
 run on the device itself this approach saves battery life, and is resistant to Remarkable software updates.
 
 An example run of the program can be found below:
