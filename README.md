@@ -52,7 +52,7 @@ from https://docs.docker.com/get-docker/. Then run the following command to star
 have not tested it on Windows yet):
 
 ```
-touch ~/.remarkable-pocket ~/.rmapi && mkdir -p ~/.rmapi-cache && docker run -it --env TZ=Europe/Amsterdam -p 65112:65112 -v ~/.remarkable-pocket:/root/.remarkable-pocket -v ~/.rmapi:/root/.rmapi -v ~/.rmapi-cache:/root/.cache/rmapi ghcr.io/nov1n/remarkable-pocket:0.2.0
+touch ~/.remarkable-pocket ~/.rmapi && mkdir -p ~/.rmapi-cache && docker run -it --env TZ=Europe/Amsterdam -p 65112:65112 -v ~/.remarkable-pocket:/root/.remarkable-pocket -v ~/.rmapi:/root/.rmapi -v ~/.rmapi-cache:/root/.cache/rmapi ghcr.io/nov1n/remarkable-pocket:0.2.1
 ```
 
 The first time you run the application, you will be asked to authorize Pocket and Remarkable Cloud. Once you have done

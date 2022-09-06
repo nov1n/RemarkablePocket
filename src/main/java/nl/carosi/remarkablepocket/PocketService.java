@@ -40,7 +40,7 @@ final class PocketService {
                         .build();
         List<PocketItem> unreads = pocket.getItems(cmd).getList();
         return unreads.stream()
-                .map(e -> Article.of(e.getResolvedId(), e.getResolvedUrl(), e.getResolvedTitle()))
+                .map(e -> Article.of(e.getItemId(), e.getResolvedUrl(), e.getResolvedTitle()))
                 .collect(Collectors.toList());
     }
 
