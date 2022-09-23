@@ -18,6 +18,7 @@ import pl.codeset.pocket.Pocket;
 @EnableRetry
 @Import({
     ArticleDownloader.class,
+    ArticleValidator.class,
     DownloadService.class,
     EpubReader.class,
     EpubWriter.class,

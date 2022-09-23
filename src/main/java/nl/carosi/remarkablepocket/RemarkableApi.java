@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
@@ -38,6 +40,7 @@ public class RemarkableApi {
                             : "");
     private final String rmStorageDir;
     private final ObjectMapper objectMapper;
+    private String workDir;
 
     public RemarkableApi(
             ObjectMapper objectMapper, @Value("${rm.storage-dir}") String rmStorageDir) {
@@ -88,6 +91,12 @@ public class RemarkableApi {
     }
 
     @PostConstruct
+    void createWorkDir() throws IOException {
+        workDir = Files.createTempDirectory(null).toAbsolutePath().toString();
+        LOG.debug("Created temporary working directory: {}.", workDir);
+    }
+
+    @PostConstruct
     public void login() {
         try {
             Process proc =
@@ -104,10 +113,10 @@ public class RemarkableApi {
         }
     }
 
-    public String download(String name, String dest) {
-        exec(RMAPI_EXECUTABLE, "-ni", "get", rmStorageDir + name);
-        exec("mv", name + ".zip", dest);
-        return dest + File.separator + name + ".zip";
+    public Path download(String articleName) {
+        exec(RMAPI_EXECUTABLE, "-ni", "get", rmStorageDir + articleName);
+        exec("mv", articleName + ".zip", workDir);
+        return Path.of(workDir, articleName + ".zip");
     }
 
     public List<String> list() {
@@ -118,11 +127,13 @@ public class RemarkableApi {
                         new String[] {"cut", "-b5-"}));
     }
 
-    public Document info(String name) {
+    public Document info(String articleName) {
         List<String> info =
                 exec(
                         List.of(
-                                new String[] {RMAPI_EXECUTABLE, "-ni", "stat", rmStorageDir + name},
+                                new String[] {
+                                    RMAPI_EXECUTABLE, "-ni", "stat", rmStorageDir + articleName
+                                },
                                 new String[] {"sed", "/{/,$!d"}));
         try {
             return objectMapper.readValue(Strings.join(info, '\n'), Document.class);
@@ -131,12 +142,12 @@ public class RemarkableApi {
         }
     }
 
-    public void upload(String path) {
-        exec(RMAPI_EXECUTABLE, "-ni", "put", path, rmStorageDir);
+    public void upload(Path path) {
+        exec(RMAPI_EXECUTABLE, "-ni", "put", path.toString(), rmStorageDir);
     }
 
-    public void delete(String name) {
-        exec(RMAPI_EXECUTABLE, "-ni", "rm", rmStorageDir + name);
+    public void delete(String articleName) {
+        exec(RMAPI_EXECUTABLE, "-ni", "rm", rmStorageDir + articleName);
     }
 
     public void createDir(String path) {

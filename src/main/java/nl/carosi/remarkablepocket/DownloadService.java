@@ -6,7 +6,6 @@ import java.io.UncheckedIOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.PostConstruct;
@@ -16,13 +15,13 @@ import org.slf4j.LoggerFactory;
 
 final class DownloadService {
     private static final Logger LOG = LoggerFactory.getLogger(DownloadService.class);
-
     private final ArticleDownloader downloader;
-    private final HashSet<Article> invalidArticles = new HashSet<>();
+    private final ArticleValidator validator;
     private Path storageDir;
 
-    DownloadService(ArticleDownloader downloader) {
+    DownloadService(ArticleDownloader downloader, ArticleValidator validator) {
         this.downloader = downloader;
+        this.validator = validator;
     }
 
     @PostConstruct
@@ -41,19 +40,11 @@ final class DownloadService {
                 nArticlesOnRm,
                 total);
         return Streams.mapWithIndex(articles.stream(), (e, i) -> logProgress(e, i, total))
-                .filter(e -> !invalidArticles.contains(e))
-                .map(this::tryDownload)
+                .filter(validator::isValid)
+                .map(a -> validator.validate(downloader.tryDownload(a, storageDir), a))
                 .flatMap(Optional::stream)
                 .limit(limit)
                 .toList();
-    }
-
-    private Optional<Path> tryDownload(Article e) {
-        Optional<Path> path = downloader.tryDownload(e, storageDir);
-        if (path.isEmpty()) {
-            invalidArticles.add(e);
-        }
-        return path;
     }
 
     private Article logProgress(Article article, long index, long total) {

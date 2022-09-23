@@ -72,6 +72,6 @@ final class RemarkableService {
     }
 
     private void upload(Path path) {
-        rmapi.upload(path.toAbsolutePath().toString());
+        rmapi.upload(path);
     }
 }
