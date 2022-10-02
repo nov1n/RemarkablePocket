@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import nl.carosi.remarkablepocket.model.DocumentMetadata;
 import org.slf4j.Logger;
@@ -43,6 +44,7 @@ final class RemarkableService {
     List<DocumentMetadata> listReadDocuments() {
         return rmapi.list().stream()
                 .map(metadataProvider::getMetadata)
+                .filter(Objects::nonNull)
                 .peek(this::logPages)
                 // Current page starts counting at 0.
                 .filter(e -> e.doc().currentPage() + 1 == e.pageCount())

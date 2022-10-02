@@ -58,22 +58,26 @@ final class MetadataProvider {
 
     DocumentMetadata getMetadata(String name) {
         LOG.debug("Getting metadata for document: {}.", name);
-        ZipFile zip;
-        try {
-            zip = new ZipFile(rmapi.download(name, workDir.toString()));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        String fileHash = zip.entries().nextElement().getName().split("\\.")[0];
-
-        try (InputStream lines = zip.getInputStream(zip.getEntry(fileHash + ".content"));
-                InputStream epub = zip.getInputStream(zip.getEntry(fileHash + ".epub"))) {
-            int pageCount = objectMapper.readValue(lines, Lines.class).pageCount();
-            String pocketId = extractPocketId(epub);
-            return new DocumentMetadata(rmapi.info(name), pageCount, pocketId);
-        } catch (IOException | SAXException | XPathExpressionException e) {
-            throw new RuntimeException(e);
+        try (ZipFile zip = new ZipFile(rmapi.download(name, workDir.toString()))) {
+            String fileHash = zip.entries().nextElement().getName().split("\\.")[0];
+            if (zip.getEntry(fileHash + ".pdf") != null) {
+                // In this case the article was converted to pdf because Remarkable
+                // couldn't read the epub file. This means we lost the metadata,
+                // so we delete it.
+                return null;
+            }
+            try (InputStream linesStream = zip.getInputStream(zip.getEntry(fileHash + ".content"));
+                    InputStream epubStream = zip.getInputStream(zip.getEntry(fileHash + ".epub"))) {
+                int pageCount = objectMapper.readValue(linesStream, Lines.class).pageCount();
+                String pocketId = extractPocketId(epubStream);
+                return new DocumentMetadata(rmapi.info(name), pageCount, pocketId);
+            }
+        } catch (Exception e) {
+            LOG.info(
+                    "Article '{}' is corrupted. Deleting file and retrieving new article in next sync.",
+                    name);
+            rmapi.delete(name);
+            return null;
         }
     }
 
