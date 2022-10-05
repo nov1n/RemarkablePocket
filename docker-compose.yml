@@ -2,7 +2,7 @@ version: '3'
 
 services:
   remarkable-pocket:
-    image: ghcr.io/nov1n/remarkable-pocket:0.2.2
+    image: ghcr.io/nov1n/remarkable-pocket:0.2.3
     restart: always
     ports:
       - 65112:65112

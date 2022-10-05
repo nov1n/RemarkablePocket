@@ -7,12 +7,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
-import javax.annotation.PostConstruct;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
@@ -30,14 +27,18 @@ final class MetadataProvider {
     private final RemarkableApi rmapi;
     private final ObjectMapper objectMapper;
     private final DocumentBuilder documentBuilder;
+    private final ArticleValidator validator;
     private final XPath publisherXpath;
-    private Path workDir;
 
     public MetadataProvider(
-            RemarkableApi rmapi, ObjectMapper objectMapper, DocumentBuilder documentBuilder) {
+            RemarkableApi rmapi,
+            ObjectMapper objectMapper,
+            DocumentBuilder documentBuilder,
+            ArticleValidator validator) {
         this.rmapi = rmapi;
         this.objectMapper = objectMapper;
         this.documentBuilder = documentBuilder;
+        this.validator = validator;
         this.publisherXpath = constructXpath();
     }
 
@@ -50,21 +51,15 @@ final class MetadataProvider {
         return opfXPath;
     }
 
-    @PostConstruct
-    void createWorkDir() throws IOException {
-        workDir = Files.createTempDirectory(null);
-        LOG.debug("Created temporary working directory: {}.", workDir);
-    }
-
     DocumentMetadata getMetadata(String name) {
         LOG.debug("Getting metadata for document: {}.", name);
-        try (ZipFile zip = new ZipFile(rmapi.download(name, workDir.toString()))) {
+        try (ZipFile zip = new ZipFile(rmapi.download(name).toFile())) {
             String fileHash = zip.entries().nextElement().getName().split("\\.")[0];
             if (zip.getEntry(fileHash + ".pdf") != null) {
                 // In this case the article was converted to pdf because Remarkable
                 // couldn't read the epub file. This means we lost the metadata,
                 // so we delete it.
-                return null;
+                throw new RuntimeException("Article was converted to PDF");
             }
             try (InputStream linesStream = zip.getInputStream(zip.getEntry(fileHash + ".content"));
                     InputStream epubStream = zip.getInputStream(zip.getEntry(fileHash + ".epub"))) {
@@ -76,7 +71,9 @@ final class MetadataProvider {
             LOG.info(
                     "Article '{}' is corrupted. Deleting file and retrieving new article in next sync.",
                     name);
+            LOG.debug("Article invalid because", e);
             rmapi.delete(name);
+            validator.invalidate(name);
             return null;
         }
     }
