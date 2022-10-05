@@ -55,12 +55,6 @@ final class MetadataProvider {
         LOG.debug("Getting metadata for document: {}.", name);
         try (ZipFile zip = new ZipFile(rmapi.download(name).toFile())) {
             String fileHash = zip.entries().nextElement().getName().split("\\.")[0];
-            if (zip.getEntry(fileHash + ".pdf") != null) {
-                // In this case the article was converted to pdf because Remarkable
-                // couldn't read the epub file. This means we lost the metadata,
-                // so we delete it.
-                throw new RuntimeException("Article was converted to PDF");
-            }
             try (InputStream linesStream = zip.getInputStream(zip.getEntry(fileHash + ".content"));
                     InputStream epubStream = zip.getInputStream(zip.getEntry(fileHash + ".epub"))) {
                 int pageCount = objectMapper.readValue(linesStream, Lines.class).pageCount();
