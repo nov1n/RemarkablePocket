@@ -35,7 +35,8 @@ public class RemarkableApi {
                     "  Make sure you have a backup");
     private static final String RMAPI_EXECUTABLE =
             "/usr/local/bin/rmapi"
-                    + (new File("/.dockerenv").exists()
+                    + ((new File("/.dockerenv").exists() // Running in Docker
+                                    || new File("/run/.containerenv").exists()) // Running in Podman
                             ? ("_" + System.getProperty("os.arch"))
                             : "");
     private final String rmStorageDir;
