@@ -4,6 +4,8 @@ services:
   remarkable-pocket:
     image: ghcr.io/nov1n/remarkable-pocket:0.2.3
     restart: always
+    environment:
+      - TZ=Europe/Amsterdam
     ports:
       - 65112:65112
     volumes:
