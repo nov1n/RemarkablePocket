@@ -7,12 +7,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
-import javax.annotation.PostConstruct;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
@@ -30,14 +27,18 @@ final class MetadataProvider {
     private final RemarkableApi rmapi;
     private final ObjectMapper objectMapper;
     private final DocumentBuilder documentBuilder;
+    private final ArticleValidator validator;
     private final XPath publisherXpath;
-    private Path workDir;
 
     public MetadataProvider(
-            RemarkableApi rmapi, ObjectMapper objectMapper, DocumentBuilder documentBuilder) {
+            RemarkableApi rmapi,
+            ObjectMapper objectMapper,
+            DocumentBuilder documentBuilder,
+            ArticleValidator validator) {
         this.rmapi = rmapi;
         this.objectMapper = objectMapper;
         this.documentBuilder = documentBuilder;
+        this.validator = validator;
         this.publisherXpath = constructXpath();
     }
 
@@ -50,30 +51,24 @@ final class MetadataProvider {
         return opfXPath;
     }
 
-    @PostConstruct
-    void createWorkDir() throws IOException {
-        workDir = Files.createTempDirectory(null);
-        LOG.debug("Created temporary working directory: {}.", workDir);
-    }
-
     DocumentMetadata getMetadata(String name) {
         LOG.debug("Getting metadata for document: {}.", name);
-        ZipFile zip;
-        try {
-            zip = new ZipFile(rmapi.download(name, workDir.toString()));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        String fileHash = zip.entries().nextElement().getName().split("\\.")[0];
-
-        try (InputStream lines = zip.getInputStream(zip.getEntry(fileHash + ".content"));
-                InputStream epub = zip.getInputStream(zip.getEntry(fileHash + ".epub"))) {
-            int pageCount = objectMapper.readValue(lines, Lines.class).pageCount();
-            String pocketId = extractPocketId(epub);
-            return new DocumentMetadata(rmapi.info(name), pageCount, pocketId);
-        } catch (IOException | SAXException | XPathExpressionException e) {
-            throw new RuntimeException(e);
+        try (ZipFile zip = new ZipFile(rmapi.download(name).toFile())) {
+            String fileHash = zip.entries().nextElement().getName().split("\\.")[0];
+            try (InputStream linesStream = zip.getInputStream(zip.getEntry(fileHash + ".content"));
+                    InputStream epubStream = zip.getInputStream(zip.getEntry(fileHash + ".epub"))) {
+                int pageCount = objectMapper.readValue(linesStream, Lines.class).pageCount();
+                String pocketId = extractPocketId(epubStream);
+                return new DocumentMetadata(rmapi.info(name), pageCount, pocketId);
+            }
+        } catch (Exception e) {
+            LOG.info(
+                    "Article '{}' is corrupted. Deleting file and retrieving new article in next sync.",
+                    name);
+            LOG.debug("Article invalid because", e);
+            rmapi.delete(name);
+            validator.invalidate(name);
+            return null;
         }
     }
 

@@ -19,7 +19,7 @@ import picocli.CommandLine.Option;
         sortOptions = false,
         usageHelpAutoWidth = true,
         // TODO: Read from gradle.properties
-        version = "0.2.1",
+        version = "0.3.0",
         mixinStandardHelpOptions = true)
 class SyncCommand implements Callable<Integer> {
     @Option(

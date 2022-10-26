@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "nl.carosi"
-version = "0.2.1"
+version = "0.3.0"
 
 java {
     toolchain {
@@ -25,6 +25,10 @@ jib {
             }
             platform {
                 architecture = 'arm'
+                os = 'linux'
+            }
+            platform {
+                architecture = 'arm64'
                 os = 'linux'
             }
         }

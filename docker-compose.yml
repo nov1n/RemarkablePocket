@@ -2,8 +2,10 @@ version: '3'
 
 services:
   remarkable-pocket:
-    image: ghcr.io/nov1n/remarkable-pocket:0.2.1
+    image: ghcr.io/nov1n/remarkable-pocket:0.3.0
     restart: always
+    environment:
+      - TZ=Europe/Amsterdam
     ports:
       - 65112:65112
     volumes:
