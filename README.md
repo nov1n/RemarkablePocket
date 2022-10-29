@@ -68,7 +68,7 @@ followed by: `launchctl load -w nl.carosi.remarkable-pocket.plist`. Logs will be
 
 ### Docker Compose
 
-If you prefer to use [Docker Compose](https://docs.docker.com/compose/) you can download the [docker-compose.yml](docker-compose.yml) file, and run `docker-compose up`.
+If you prefer to use [Docker Compose](https://docs.docker.com/compose/) you can download the [docker-compose.yml](docker-compose.yml) file, and run `docker-compose up`. Please make sure that the mounted config files (e.g. `~/.remarkable-pocket` etc.) exist on the host before starting.
 
 ### Raspberry Pi
 
