@@ -61,11 +61,6 @@ the timezone in the command to match your location.
 
 By default, articles are synchronized to the `/Pocket/` directory on the Remarkable every 60 minutes.
 
-### Launchd on MacOS
-To launch the program on startup and keep it running in the background you can use *launchd* (on Mac)
-or *systemd* (on Linux). On Mac copy [this](nl.carosi.remarkable-pocket.plist) file to `~/Library/LaunchAgents/`
-followed by: `launchctl load -w nl.carosi.remarkable-pocket.plist`. Logs will be sent to `~/.remarkable-pocket.log`.
-
 ### Docker Compose
 
 If you prefer to use [Docker Compose](https://docs.docker.com/compose/) first run the command in the [Usage](#usage) section and complete the authentication steps (this only needs to happen once). When syncing starts you can stop the container, download the [docker-compose.yml](docker-compose.yml) file, and run `docker-compose up`.
@@ -75,6 +70,11 @@ If you prefer to use [Docker Compose](https://docs.docker.com/compose/) first ru
 There is also a Docker image available for the Raspberry Pi, so the command in [Usage](#usage) will work. You do need a
 browser to complete the authentication flow. If your Pi runs without a screen I recommend using a VNC client when
 running the program for the first time.
+
+### Launchd on MacOS
+To launch the program on startup and keep it running in the background you can use *launchd* (on Mac)
+or *systemd* (on Linux). On Mac copy [this](nl.carosi.remarkable-pocket.plist) file to `~/Library/LaunchAgents/`
+followed by: `launchctl load -w nl.carosi.remarkable-pocket.plist`. Logs will be sent to `~/.remarkable-pocket.log`.
 
 ## Configuration
 
