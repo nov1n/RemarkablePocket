@@ -68,7 +68,7 @@ followed by: `launchctl load -w nl.carosi.remarkable-pocket.plist`. Logs will be
 
 ### Docker Compose
 
-If you prefer to use [Docker Compose](https://docs.docker.com/compose/) you can download the [docker-compose.yml](docker-compose.yml) file, and run `touch ~/.remarkable-pocket ~/.rmapi && mkdir -p ~/.rmapi-cache && docker-compose up`.
+If you prefer to use [Docker Compose](https://docs.docker.com/compose/) first run the command in the [Usage](#usage) section and complete the authentication steps (this only needs to happen once). When syncing starts you can stop the container, download the [docker-compose.yml](docker-compose.yml) file, and run `docker-compose up`.
 
 ### Raspberry Pi
 
