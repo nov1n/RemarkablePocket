@@ -78,11 +78,11 @@ public class RemarkableApi {
         new Thread(
                         () -> {
                             Scanner sc = new Scanner(src);
-                            sc.useDelimiter(Pattern.compile("\\n|: "));
+                            sc.useDelimiter(Pattern.compile("\\n|\\): "));
                             while (sc.hasNext()) {
                                 String token = sc.next();
-                                if (token.equals("Refreshing tree...")) {
-                                    consumer.accept("Refreshing cache... This may take a while.");
+                                if (token.startsWith("Enter one-time code")) {
+                                    consumer.accept(token + "):");
                                 } else {
                                     consumer.accept(token);
                                 }
@@ -101,11 +101,10 @@ public class RemarkableApi {
     public void login() {
         try {
             Process proc =
-                    new ProcessBuilder(RMAPI_EXECUTABLE, "version").redirectInput(INHERIT).start();
+                    new ProcessBuilder(RMAPI_EXECUTABLE, "account").redirectInput(INHERIT).start();
             logStream(proc.getInputStream(), LOG::info);
             logStream(proc.getErrorStream(), LOG::error);
             int exitCode = proc.waitFor();
-            LOG.info("");
             if (exitCode != 0) {
                 throw new RuntimeException("Could not authenticate to Remarkable API");
             }
