@@ -6,8 +6,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import nl.siegmann.epublib.epub.EpubReader;
 import nl.siegmann.epublib.epub.EpubWriter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -32,8 +30,6 @@ import pl.codeset.pocket.Pocket;
     SyncService.class,
 })
 public class SyncApplication {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SyncApplication.class);
 
     @Bean
     DocumentBuilder documentBuilder() throws ParserConfigurationException {
