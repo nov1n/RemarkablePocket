@@ -8,7 +8,7 @@
     <array>
        <string>/bin/sh</string>
        <string>-c</string>
-       <string>while ! /usr/local/bin/docker version > /dev/null 2>&amp;1; do sleep 5; done &amp;&amp; /usr/local/bin/docker run --env TZ=Europe/Amsterdam -v ~/.remarkable-pocket:/root/.remarkable-pocket -v ~/.rmapi:/root/.rmapi -v ~/.rmapi-cache:/root/.cache/rmapi ghcr.io/nov1n/remarkable-pocket:0.3.0 1>>$HOME/.remarkable-pocket.log 2>&amp;1</string>
+       <string>while ! /usr/local/bin/docker version > /dev/null 2>&amp;1; do sleep 5; done &amp;&amp; /usr/local/bin/docker run --env TZ=Europe/Amsterdam -v ~/.remarkable-pocket:/root/.remarkable-pocket -v ~/.rmapi:/root/.rmapi -v ~/.rmapi-cache:/root/.cache/rmapi ghcr.io/nov1n/remarkable-pocket:0.4.0 1>>$HOME/.remarkable-pocket.log 2>&amp;1</string>
     </array>
     <key>RunAtLoad</key>
     <true/>

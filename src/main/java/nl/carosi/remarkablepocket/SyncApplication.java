@@ -30,6 +30,7 @@ import pl.codeset.pocket.Pocket;
     SyncService.class,
 })
 public class SyncApplication {
+
     @Bean
     DocumentBuilder documentBuilder() throws ParserConfigurationException {
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
@@ -41,7 +42,7 @@ public class SyncApplication {
         try {
             return new Pocket(authenticator.getAuth());
         } catch (IOException e) {
-            throw new RuntimeException("Could not authenticate with Pocket", e);
+            throw new RuntimeException("Could not connect to Pocket", e);
         }
     }
 }

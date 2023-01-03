@@ -20,7 +20,6 @@ import pl.codeset.pocket.read.Sort;
 
 final class PocketService {
     private static final Logger LOG = LoggerFactory.getLogger(PocketService.class);
-
     private final String tagFilter;
     private final Pocket pocket;
 
