@@ -6,6 +6,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import nl.siegmann.epublib.epub.EpubReader;
 import nl.siegmann.epublib.epub.EpubWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -30,6 +32,9 @@ import pl.codeset.pocket.Pocket;
     SyncService.class,
 })
 public class SyncApplication {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SyncApplication.class);
+
     @Bean
     DocumentBuilder documentBuilder() throws ParserConfigurationException {
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
@@ -41,7 +46,7 @@ public class SyncApplication {
         try {
             return new Pocket(authenticator.getAuth());
         } catch (IOException e) {
-            throw new RuntimeException("Could not authenticate with Pocket", e);
+            throw new RuntimeException("Could not connect to Pocket", e);
         }
     }
 }

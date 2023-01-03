@@ -106,10 +106,10 @@ public class RemarkableApi {
             logStream(proc.getErrorStream(), LOG::error);
             int exitCode = proc.waitFor();
             if (exitCode != 0) {
-                throw new RuntimeException("Could not authenticate to Remarkable API");
+                throw new RuntimeException("Could not connect to Remarkable Cloud");
             }
         } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("Could not authenticate to Remarkable API", e);
+            throw new RuntimeException("Could not connect to Remarkable Cloud", e);
         }
     }
 
@@ -138,7 +138,7 @@ public class RemarkableApi {
         try {
             return objectMapper.readValue(Strings.join(info, '\n'), Document.class);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Error parsing Remarkable API response", e);
+            throw new RuntimeException("Error parsing Remarkable Cloud response", e);
         }
     }
 
