@@ -73,8 +73,7 @@ running the program for the first time.
 
 ### Launchd on MacOS
 To launch the program on startup and keep it running in the background you can use *launchd* (on Mac)
-or *systemd* (on Linux). On Mac copy [this](nl.carosi.remarkable-pocket.plist) file to `~/Library/LaunchAgents/`
-followed by: `launchctl load -w nl.carosi.remarkable-pocket.plist`. Logs will be sent to `~/.remarkable-pocket.log`.
+or *systemd* (on Linux). On Mac right click [here](https://raw.githubusercontent.com/nov1n/RemarkablePocket/main/nl.carosi.remarkable-pocket.plist) and click "Save Link As...". Then move the downloaded file to `~/Library/LaunchAgents/`. Finally run `launchctl load -w ~/Library/LaunchAgents/nl.carosi.remarkable-pocket.plist` in a terminal. Logs will be sent to `~/.remarkable-pocket.log`.
 
 ## Configuration
 
