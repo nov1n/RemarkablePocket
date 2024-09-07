@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   remarkable-pocket:
     image: ghcr.io/nov1n/remarkable-pocket:0.4.0
@@ -12,3 +10,6 @@ services:
       - ~/.remarkable-pocket:/root/.remarkable-pocket
       - ~/.rmapi:/root/.rmapi
       - ~/.rmapi-cache:/root/.cache/rmapi
+    # Uncomment the line below to configure the application with additional command-line arguments.
+    # This example increases the article limit to 15, and reduces the sync interval to 30 minutes.
+    # command: ["-l", "15", "-i", "30m"]
