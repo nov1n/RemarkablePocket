@@ -56,14 +56,14 @@ touch ~/.remarkable-pocket ~/.rmapi && mkdir -p ~/.rmapi-cache && docker run -it
 ```
 
 The first time you run the application, you will be asked to authorize Pocket and Remarkable Cloud. Once you have done
-this subsequent runs will read the credentials from the `~/.remarkable-pocket` and `~/.rmapi` file. You can also change
+this subsequent runs will read the credentials from the `~/.remarkable-pocket` and `~/.rmapi` files. You can also change
 the timezone in the command to match your location.
 
 By default, articles are synchronized to the `/Pocket/` directory on the Remarkable every 60 minutes.
 
 ### Docker Compose
 
-If you prefer to use [Docker Compose](https://docs.docker.com/compose/) first run the command in the [Usage](#usage) section and complete the authentication steps (this only needs to happen once). When syncing starts you can stop the container, download the [docker-compose.yml](docker-compose.yml) file, and run `docker-compose up`.
+If you prefer to use [Docker Compose](https://docs.docker.com/compose/) first run the command in the [Usage](#usage) section and complete the authentication steps (this only needs to happen once). When syncing starts you can stop the container, download the [docker-compose.yml](docker-compose.yml) file, and run `docker compose up`.
 
 ### Raspberry Pi
 
