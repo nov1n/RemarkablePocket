@@ -36,7 +36,7 @@ An example run of the program can be found below:
 ## Features
 
 - **No installation required.** The application can be run with a single command.
-- **Works on Remarkable 1 and 2.**
+- **Works on Remarkable 1, Remarkable 2, and Remarkable Paper Pro.**
 - **Full support for images, code blocks, and formulas.**
 - **Articles are downloaded as epubs.** This allows you to customize the font, font size, margins, etc.
 - **Automatically archive read articles on Pocket.** When you finish reading an article and close it while on the last
