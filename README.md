@@ -67,9 +67,13 @@ If you prefer to use [Docker Compose](https://docs.docker.com/compose/) first ru
 
 ### Raspberry Pi
 
-There is also a Docker image available for the Raspberry Pi, so the command in [Usage](#usage) will work. You do need a
-browser to complete the authentication flow. If your Pi runs without a screen I recommend using a VNC client when
-running the program for the first time.
+There is also a Docker image available for the Raspberry Pi, so the command in [Usage](#usage) will work. If you are running the pi in headless mode (without a screen), you have two options to complete the authentication flow. The easiest way is to use a VNC client to connect to the pi when running the program for the first time. 
+
+Alternatively, you can create an ssh tunnel from your machine to the pi like so:
+```bash
+ssh -L 65112:localhost:65112 <rpi username>@<rpi ip address>
+```
+Then, you can proceed with the initial run Docker command and simply copy the authentication URL from the terminal to your browser. The redirect will be tunneled to the Raspberry Pi via the SSH tunnel.
 
 ### Launchd on MacOS
 To launch the program on startup and keep it running in the background you can use *launchd* (on Mac)
