@@ -29,15 +29,16 @@ final class PocketService {
     }
 
     List<Article> getArticles() throws IOException {
-        GetItemsCmd cmd =
+        GetItemsCmd.Builder cmd =
                 new GetItemsCmd.Builder()
                         .contentType(ContentType.article)
                         .detailType(DetailType.simple)
-                        .tag(tagFilter)
                         .state(ItemState.unread)
-                        .sort(Sort.newest)
-                        .build();
-        List<PocketItem> unreads = pocket.getItems(cmd).getList();
+                        .sort(Sort.newest);
+        if(!tagFilter.isEmpty()) {
+            cmd.tag(tagFilter);
+        }
+        List<PocketItem> unreads = pocket.getItems(cmd.build()).getList();
         return unreads.stream()
                 .map(e -> Article.of(e.getItemId(), e.getResolvedUrl(), e.getResolvedTitle()))
                 .collect(Collectors.toList());
