@@ -1,7 +1,8 @@
 package nl.carosi.remarkablepocket;
 
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.function.Consumer;
 
 final class ConnectivityChecker {
@@ -10,9 +11,9 @@ final class ConnectivityChecker {
     static void ensureConnected(Consumer<String> out) {
         while (true) {
             try {
-                new URL("http://www.google.com").openConnection().connect();
+                new URI("http://www.google.com").toURL().openConnection().connect();
                 break;
-            } catch (IOException e) {
+            } catch (IOException | URISyntaxException e) {
                 out.accept(
                         "Unable to connect to the internet. Please check your internet connection.");
                 try {

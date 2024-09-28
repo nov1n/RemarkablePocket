@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import nl.carosi.remarkablepocket.model.Document;
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
