@@ -42,12 +42,16 @@ final class DownloadService {
                 nArticlesOnRm,
                 total);
         AtomicInteger count = new AtomicInteger(1);
-        return articles.stream()
+        List<Path> downloads = articles.stream()
                 .filter(article -> validator.isValid(article.title()))
                 .map(article -> tryDownload(article, count, total))
                 .flatMap(Optional::stream)
                 .limit(limit)
                 .toList();
+        if(downloads.size() < total) {
+            LOG.warn("No more articles on Pocket. Add some new ones!");
+        }
+        return downloads;
     }
 
     private Optional<Path> tryDownload(Article article, AtomicInteger count, int total) {
