@@ -33,6 +33,7 @@ final class DownloadService {
 
     @SuppressWarnings("UnstableApiUsage")
     List<Path> download(List<Article> articles, int articleLimit, int nArticlesOnRm) {
+        validator.logInvalidArticles();
         int limit = articleLimit - nArticlesOnRm;
         int pocketCount = articles.size();
         int total = Math.min(pocketCount, limit);
