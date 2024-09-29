@@ -57,8 +57,11 @@ final class MetadataProvider {
             String fileHash = zip.entries().nextElement().getName().split("\\.")[0];
             try (InputStream linesStream = zip.getInputStream(zip.getEntry(fileHash + ".content"));
                     InputStream epubStream = zip.getInputStream(zip.getEntry(fileHash + ".epub"))) {
-                int pageCount = objectMapper.readValue(linesStream, Lines.class).pageCount();
+                String contentFile = new String(linesStream.readAllBytes());
+                LOG.trace(".content file of {}: {}", fileHash, contentFile);
+                int pageCount = objectMapper.readValue(contentFile, Lines.class).pageCount();
                 String pocketId = extractPocketId(epubStream);
+                LOG.debug("Article '{}' has {} pages and pocket id '{}'.", name, pageCount, pocketId);
                 return new DocumentMetadata(rmapi.info(name), pageCount, pocketId);
             }
         } catch (Exception e) {
