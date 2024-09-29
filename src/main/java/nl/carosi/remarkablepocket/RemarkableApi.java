@@ -115,7 +115,7 @@ public class RemarkableApi {
 
     public Path download(String articleName) {
         exec(RMAPI_EXECUTABLE, "-ni", "get", rmStorageDir + articleName);
-        exec("mv", articleName + ".zip", workDir);
+        exec("mv", articleName + ".rmdoc", workDir + "/" + articleName + ".zip");
         return Path.of(workDir, articleName + ".zip");
     }
 
