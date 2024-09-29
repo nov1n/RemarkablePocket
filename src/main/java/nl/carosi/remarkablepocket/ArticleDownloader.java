@@ -138,7 +138,7 @@ class ArticleDownloader {
         int progress = res.progress();
         LOG.debug("Status: {} progress: {}%", res.message(), progress);
         if (progress != 100) {
-            throw new RuntimeException("Epub generation error.");
+            throw new RuntimeException("Epub generation error");
         }
     }
 
