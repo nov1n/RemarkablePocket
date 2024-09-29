@@ -14,6 +14,6 @@ class ArticleValidator {
     }
 
     boolean isValid(String articleName) {
-        return !invalidArticles.contains(articleName);
+        return !articleName.isEmpty() && !invalidArticles.contains(articleName);
     }
 }
