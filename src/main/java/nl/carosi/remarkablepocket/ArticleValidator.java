@@ -45,7 +45,7 @@ public class ArticleValidator {
             try (Statement stmt = conn.createStatement()) {
                 stmt.execute(sql);
             }
-            LOG.info("Database initialized at: {}", DB_PATH);
+            LOG.debug("Database initialized at: {}", DB_PATH);
         } catch (SQLException | IOException e) {
             LOG.error("Error initializing database", e);
         }
