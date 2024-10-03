@@ -108,18 +108,12 @@ Synchronizes articles from Pocket to the Remarkable tablet.
 ## Frequently Asked Questions (FAQ)
 
 <details>
-<summary><b>I'm getting a "Could not connect to Pocket" error when running. How can I fix this?</b></summary>
+<summary><b>Something isn't working right, how do I fix it?</b></summary>
 
-This error typically occurs due to outdated or corrupted cache files. To resolve this issue:
+The first step is to run the command once with the `-r` flag. This resets all configuration, and resolves common
+issues. If that doesn't solve your problem feel free to open an issue. Please run the application with the -v flag
+for verbose log output, and attach the logs to the ticket. This helps me help you.
 
-1. Open a terminal
-2. Run the following command:
-```
-rm -rf ~/.remarkable-pocket ~/.rmapi ~/.rmapi-cache
-```
-3. Try running the application again
-
-This command removes the cache directories, allowing the application to create fresh connections.
 </details>
 
 ## Limitations

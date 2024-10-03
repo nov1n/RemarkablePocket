@@ -49,14 +49,6 @@ final class SyncService {
         this.runOnce = runOnce;
     }
 
-    private static String humanReadable(Duration duration) {
-        return duration.truncatedTo(SECONDS)
-                .toString()
-                .substring(2)
-                .replaceAll("(\\d[HMS])(?!$)", "$1 ")
-                .toLowerCase();
-    }
-
     @Scheduled(fixedDelayString = "${sync.interval}")
     void sync() {
         ensureConnected(LOG::error);
@@ -115,5 +107,13 @@ final class SyncService {
             LOG.info("({}/{}) Deleting '{}' from Remarkable...", i + 1, nDocs, doc.doc().name());
             remarkableService.delete(doc.doc().name());
         }
+    }
+
+    private static String humanReadable(Duration duration) {
+        return duration.truncatedTo(SECONDS)
+                .toString()
+                .substring(2)
+                .replaceAll("(\\d[HMS])(?!$)", "$1 ")
+                .toLowerCase();
     }
 }

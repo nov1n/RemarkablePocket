@@ -3,41 +3,28 @@ package nl.carosi.remarkablepocket;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.sql.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.io.IOException;
 
 public class ArticleValidator {
     private static final Logger LOG = LoggerFactory.getLogger(ArticleValidator.class);
-    private static final String APP_NAME = "RemarkablePocket";
     private static final String DB_NAME = "validator.db";
-    private static final Path DB_PATH = getAppDataPath().resolve(DB_NAME);
+    private final Path dbPath;
     private Connection conn;
 
-    public ArticleValidator() {
+    public ArticleValidator(@Value("${db.path}") Path dbPath) {
+        this.dbPath  = dbPath.resolve(DB_NAME);;
         initializeDatabase();
-    }
-
-    private static Path getAppDataPath() {
-        String os = System.getProperty("os.name").toLowerCase();
-        String userHome = System.getProperty("user.home");
-
-        if (os.contains("win")) {
-            return Paths.get(System.getenv("APPDATA"), APP_NAME);
-        } else if (os.contains("mac")) {
-            return Paths.get(userHome, "Library", "Application Support", APP_NAME);
-        } else {
-            return Paths.get(userHome, ".local", "share", APP_NAME);
-        }
     }
 
     private void initializeDatabase() {
         try {
-            Files.createDirectories(DB_PATH.getParent());
-            String url = "jdbc:sqlite:" + DB_PATH;
+            Files.createDirectories(dbPath.getParent());
+            String url = "jdbc:sqlite:" + dbPath;
             conn = DriverManager.getConnection(url);
 
             String sql = "CREATE TABLE IF NOT EXISTS invalid_articles (" +
@@ -45,7 +32,7 @@ public class ArticleValidator {
             try (Statement stmt = conn.createStatement()) {
                 stmt.execute(sql);
             }
-            LOG.debug("Database initialized at: {}", DB_PATH);
+            LOG.debug("Database initialized at: {}", dbPath);
         } catch (SQLException | IOException e) {
             LOG.error("Error initializing database", e);
         }

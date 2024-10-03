@@ -24,32 +24,31 @@ public class PocketAuthenticator {
     private static final Logger LOG = LoggerFactory.getLogger(PocketAuthenticator.class);
     private static final String CONSUMER_KEY = "99428-51e4648a4528a1faa799c738";
     private static final String TOKEN_PROPERTY = "pocket.access.token";
-    private final String authFile;
+    private final Path authFile;
     private final int port;
 
     public PocketAuthenticator(
-            @Value("${pocket.auth.file}") String authFile,
+            @Value("${pocket.auth.file}") Path authFile,
             @Value("${pocket.server.port}") int port) {
         this.authFile = authFile;
         this.port = port;
     }
 
     public PocketAuth getAuth() throws IOException {
-        Path authFilePath = Path.of(authFile);
-        Path authDirPath = authFilePath.getParent();
+        Path authDirPath = authFile.getParent();
         if (Files.notExists(authDirPath)) {
             Files.createDirectories(authDirPath);
         }
 
         // TODO: Sometimes a directory is created, figure out why
-        if (Files.isDirectory(authFilePath)) {
-            Files.delete(authFilePath);
+        if (Files.isDirectory(authFile)) {
+            Files.delete(authFile);
         }
 
-        if (Files.exists(authFilePath) && Files.size(authFilePath) > 0) {
-            return authFromFile(authFilePath);
+        if (Files.exists(authFile) && Files.size(authFile) > 0) {
+            return authFromFile(authFile);
         } else {
-            return authAndStore(authFilePath);
+            return authAndStore(authFile);
         }
     }
 

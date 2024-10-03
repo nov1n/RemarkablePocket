@@ -15,6 +15,17 @@ java {
     }
 }
 
+tasks.register('createVersionFile') {
+    doLast {
+        def versionFile = file("$buildDir/resources/main/version.properties")
+        versionFile.text = "version=${project.version}\n"
+    }
+}
+
+tasks.named('processResources') {
+    dependsOn 'createVersionFile'
+}
+
 jib {
     from {
         image = "eclipse-temurin:17-jre"
