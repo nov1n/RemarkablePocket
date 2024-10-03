@@ -1,15 +1,16 @@
 package nl.carosi.remarkablepocket;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Objects;
 import jakarta.annotation.PostConstruct;
 import nl.carosi.remarkablepocket.model.DocumentMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Objects;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 final class RemarkableService {
     private static final Logger LOG = LoggerFactory.getLogger(RemarkableService.class);

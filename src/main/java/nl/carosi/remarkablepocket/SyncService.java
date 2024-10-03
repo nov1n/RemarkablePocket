@@ -1,15 +1,5 @@
 package nl.carosi.remarkablepocket;
 
-import static java.time.temporal.ChronoUnit.SECONDS;
-import static nl.carosi.remarkablepocket.ConnectivityChecker.ensureConnected;
-
-import java.io.IOException;
-import java.nio.file.Path;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import nl.carosi.remarkablepocket.model.Article;
 import nl.carosi.remarkablepocket.model.DocumentMetadata;
 import org.slf4j.Logger;
@@ -18,6 +8,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Scheduled;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static java.time.temporal.ChronoUnit.SECONDS;
+import static nl.carosi.remarkablepocket.ConnectivityChecker.ensureConnected;
 
 final class SyncService {
     private static final Logger LOG = LoggerFactory.getLogger(SyncService.class);
@@ -47,6 +48,14 @@ final class SyncService {
         this.archiveRead = archiveRead;
         this.syncInterval = syncInterval;
         this.runOnce = runOnce;
+    }
+
+    private static String humanReadable(Duration duration) {
+        return duration.truncatedTo(SECONDS)
+                .toString()
+                .substring(2)
+                .replaceAll("(\\d[HMS])(?!$)", "$1 ")
+                .toLowerCase();
     }
 
     @Scheduled(fixedDelayString = "${sync.interval}")
@@ -107,13 +116,5 @@ final class SyncService {
             LOG.info("({}/{}) Deleting '{}' from Remarkable...", i + 1, nDocs, doc.doc().name());
             remarkableService.delete(doc.doc().name());
         }
-    }
-
-    private static String humanReadable(Duration duration) {
-        return duration.truncatedTo(SECONDS)
-                .toString()
-                .substring(2)
-                .replaceAll("(\\d[HMS])(?!$)", "$1 ")
-                .toLowerCase();
     }
 }

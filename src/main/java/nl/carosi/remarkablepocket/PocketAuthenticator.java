@@ -1,10 +1,14 @@
 package nl.carosi.remarkablepocket;
 
-import static java.util.concurrent.TimeUnit.MINUTES;
-
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import pl.codeset.pocket.PocketAuth;
+import pl.codeset.pocket.PocketAuthFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,11 +18,8 @@ import java.nio.file.Path;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import pl.codeset.pocket.PocketAuth;
-import pl.codeset.pocket.PocketAuthFactory;
+
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class PocketAuthenticator {
     private static final Logger LOG = LoggerFactory.getLogger(PocketAuthenticator.class);

@@ -5,10 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.sql.*;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.io.IOException;
+import java.sql.*;
 
 public class ArticleValidator {
     private static final Logger LOG = LoggerFactory.getLogger(ArticleValidator.class);
@@ -17,7 +17,8 @@ public class ArticleValidator {
     private Connection conn;
 
     public ArticleValidator(@Value("${db.path}") Path dbPath) {
-        this.dbPath  = dbPath.resolve(DB_NAME);;
+        this.dbPath = dbPath.resolve(DB_NAME);
+        ;
         initializeDatabase();
     }
 

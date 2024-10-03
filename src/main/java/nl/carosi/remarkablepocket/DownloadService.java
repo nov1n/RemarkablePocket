@@ -1,5 +1,10 @@
 package nl.carosi.remarkablepocket;
 
+import jakarta.annotation.PostConstruct;
+import nl.carosi.remarkablepocket.model.Article;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.DirectoryStream;
@@ -8,10 +13,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import jakarta.annotation.PostConstruct;
-import nl.carosi.remarkablepocket.model.Article;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 final class DownloadService {
     private static final Logger LOG = LoggerFactory.getLogger(DownloadService.class);
@@ -48,7 +49,7 @@ final class DownloadService {
                 .flatMap(Optional::stream)
                 .limit(limit)
                 .toList();
-        if(downloads.size() < total) {
+        if (downloads.size() < total) {
             LOG.warn("No more articles on Pocket. Add some new ones!");
         }
         return downloads;
@@ -69,7 +70,7 @@ final class DownloadService {
 
     void clearDownloads() throws IOException {
         try (DirectoryStream<Path> paths =
-                Files.newDirectoryStream(storageDir, "*." + downloader.getFileType())) {
+                     Files.newDirectoryStream(storageDir, "*." + downloader.getFileType())) {
             for (Path p : paths) {
                 try {
                     Files.delete(p);

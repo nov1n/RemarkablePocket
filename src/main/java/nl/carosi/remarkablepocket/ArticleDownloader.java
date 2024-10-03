@@ -1,20 +1,7 @@
 package nl.carosi.remarkablepocket;
 
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
-import static java.nio.file.StandardOpenOption.WRITE;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.CharStreams;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Optional;
 import nl.carosi.remarkablepocket.model.Article;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.Resource;
@@ -30,6 +17,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.client.RestTemplate;
+
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
+
+import static java.nio.file.StandardOpenOption.*;
 
 class ArticleDownloader {
     public static final String POCKET_ID_SEPARATOR = "\t\t\t";
@@ -54,7 +49,8 @@ class ArticleDownloader {
     private final EpubReader epubReader;
     private final EpubWriter epubWriter;
     // Required to call @Retryable method from the same class.
-    @Autowired private ArticleDownloader self;
+    @Autowired
+    private ArticleDownloader self;
 
     public ArticleDownloader(
             RestTemplateBuilder restTemplateBuilder, EpubReader epubReader, EpubWriter epubWriter) {
@@ -80,13 +76,13 @@ class ArticleDownloader {
                         "Pocket"
                                 + POCKET_ID_SEPARATOR
                                 + article.id(), // Hide Pocket ID from the Remarkable UI.
-                        new String[] {article.url()});
+                        new String[]{article.url()});
         String downloadId = restTemplate.postForObject(BASE_URL, req, DownloadResponse.class).id();
         self.waitUntilReady(downloadId);
 
         Path downloadPath = storageDir.resolve(article.title() + "." + getFileType());
         try (OutputStream downloadStream =
-                Files.newOutputStream(downloadPath, CREATE, WRITE, TRUNCATE_EXISTING)) {
+                     Files.newOutputStream(downloadPath, CREATE, WRITE, TRUNCATE_EXISTING)) {
             restTemplate.execute(
                     String.format(DOWNLOAD_URL_TEMPL, downloadId),
                     HttpMethod.GET,
@@ -113,9 +109,9 @@ class ArticleDownloader {
         }
 
         try (BufferedReader contentReader =
-                new BufferedReader(
-                        new InputStreamReader(
-                                resource.getInputStream(), resource.getInputEncoding()))) {
+                     new BufferedReader(
+                             new InputStreamReader(
+                                     resource.getInputStream(), resource.getInputEncoding()))) {
             String content = CharStreams.toString(contentReader);
             boolean isValid = content.length() > MIN_VALID_CONTENT_SIZE;
             if (!isValid) {
@@ -165,9 +161,12 @@ class ArticleDownloader {
         }
     }
 
-    private record DownloadRequest(String author, String publisher, String[] urls) {}
+    private record DownloadRequest(String author, String publisher, String[] urls) {
+    }
 
-    private record DownloadResponse(String id) {}
+    private record DownloadResponse(String id) {
+    }
 
-    private record StatusResponse(String message, int progress) {}
+    private record StatusResponse(String message, int progress) {
+    }
 }

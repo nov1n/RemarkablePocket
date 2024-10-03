@@ -1,10 +1,9 @@
 package nl.carosi.remarkablepocket;
 
-import static java.util.Map.entry;
-import static nl.carosi.remarkablepocket.ConnectivityChecker.ensureConnected;
-import static org.springframework.boot.Banner.Mode.OFF;
-import static org.springframework.boot.WebApplicationType.NONE;
-import static picocli.CommandLine.Help.Visibility.ALWAYS;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -13,10 +12,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import picocli.CommandLine;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
+import static java.util.Map.entry;
+import static nl.carosi.remarkablepocket.ConnectivityChecker.ensureConnected;
+import static org.springframework.boot.Banner.Mode.OFF;
+import static org.springframework.boot.WebApplicationType.NONE;
+import static picocli.CommandLine.Help.Visibility.ALWAYS;
 
 @Command(
         name = "sync",
@@ -115,47 +115,6 @@ class SyncCommand implements Callable<Integer> {
         new CommandLine(new SyncCommand()).execute(args);
     }
 
-    @Override
-    public Integer call() {
-        ensureConnected(System.err::println);
-
-        if (dbPath == null) {
-            dbPath = getAppDataPath().toString();
-        }
-
-        authFile = replaceUserHome(authFile);
-
-        if (reset) {
-            resetConfiguration(List.of(dbPath, authFile, RMAPI_CONFIG, RMAPI_CACHE));
-        }
-
-        // Handle sigterm (^C)
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> Runtime.getRuntime().halt(1)));
-
-        Map<String, Object> cliProperties =
-                Map.ofEntries(
-                        entry("pocket.archive-read", Boolean.toString(!noArchive)),
-                        entry("rm.storage-dir", storageDir),
-                        entry("rm.article-limit", articleLimit),
-                        entry("sync.interval", "PT" + interval),
-                        entry("sync.run-once", Boolean.toString(runOnce)),
-                        entry("pocket.tag-filter", tagFilter),
-                        entry("pocket.server.port", port),
-                        entry("db.path", dbPath),
-                        entry("pocket.auth.file", authFile),
-                        entry("logging.level." + this.getClass().getPackageName(), verbose ? "DEBUG" : "INFO"));
-
-        new SpringApplicationBuilder(SyncApplication.class)
-                .logStartupInfo(false)
-                .profiles("default")
-                .bannerMode(OFF)
-                .web(NONE)
-                .properties(cliProperties)
-                .run();
-
-        return 0;
-    }
-
     private static void resetConfiguration(List<String> configurationFiles) {
         for (String path : configurationFiles) {
             File file = new File(path);
@@ -207,6 +166,47 @@ class SyncCommand implements Callable<Integer> {
 
     private static String replaceUserHome(String path) {
         return path.replaceFirst("^~", USER_HOME);
+    }
+
+    @Override
+    public Integer call() {
+        ensureConnected(System.err::println);
+
+        if (dbPath == null) {
+            dbPath = getAppDataPath().toString();
+        }
+
+        authFile = replaceUserHome(authFile);
+
+        if (reset) {
+            resetConfiguration(List.of(dbPath, authFile, RMAPI_CONFIG, RMAPI_CACHE));
+        }
+
+        // Handle sigterm (^C)
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> Runtime.getRuntime().halt(1)));
+
+        Map<String, Object> cliProperties =
+                Map.ofEntries(
+                        entry("pocket.archive-read", Boolean.toString(!noArchive)),
+                        entry("rm.storage-dir", storageDir),
+                        entry("rm.article-limit", articleLimit),
+                        entry("sync.interval", "PT" + interval),
+                        entry("sync.run-once", Boolean.toString(runOnce)),
+                        entry("pocket.tag-filter", tagFilter),
+                        entry("pocket.server.port", port),
+                        entry("db.path", dbPath),
+                        entry("pocket.auth.file", authFile),
+                        entry("logging.level." + this.getClass().getPackageName(), verbose ? "DEBUG" : "INFO"));
+
+        new SpringApplicationBuilder(SyncApplication.class)
+                .logStartupInfo(false)
+                .profiles("default")
+                .bannerMode(OFF)
+                .web(NONE)
+                .properties(cliProperties)
+                .run();
+
+        return 0;
     }
 }
 

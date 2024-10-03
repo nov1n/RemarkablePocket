@@ -1,7 +1,8 @@
 ![Example article](assets/logo-title.png)
 
 *Remarkable Pocket* synchronizes articles from [Pocket](https://getpocket.com) to
-your [Remarkable](https://remarkable.com/) tablet. It can be run on your computer, on a server, or on your Raspberry Pi. Because it does not
+your [Remarkable](https://remarkable.com/) tablet. It can be run on your computer, on a server, or on your Raspberry Pi.
+Because it does not
 run on the device itself this approach saves battery life, and is resistant to Remarkable software updates.
 
 An example run of the program can be found below:
@@ -63,21 +64,33 @@ By default, articles are synchronized to the `/Pocket/` directory on the Remarka
 
 ### Docker Compose
 
-If you prefer to use [Docker Compose](https://docs.docker.com/compose/) first run the command in the [Usage](#usage) section and complete the authentication steps (this only needs to happen once). When syncing starts you can stop the container, download the [docker-compose.yml](docker-compose.yml) file, and run `docker compose up`.
+If you prefer to use [Docker Compose](https://docs.docker.com/compose/) first run the command in the [Usage](#usage)
+section and complete the authentication steps (this only needs to happen once). When syncing starts you can stop the
+container, download the [docker-compose.yml](docker-compose.yml) file, and run `docker compose up`.
 
 ### Raspberry Pi
 
-There is also a Docker image available for the Raspberry Pi, so the command in [Usage](#usage) will work. If you are running the pi in headless mode (without a screen), you have two options to complete the authentication flow. The easiest way is to use a VNC client to connect to the pi when running the program for the first time. 
+There is also a Docker image available for the Raspberry Pi, so the command in [Usage](#usage) will work. If you are
+running the pi in headless mode (without a screen), you have two options to complete the authentication flow. The
+easiest way is to use a VNC client to connect to the pi when running the program for the first time.
 
 Alternatively, you can create an ssh tunnel from your machine to the pi like so:
+
 ```bash
 ssh -L 65112:localhost:65112 <rpi username>@<rpi ip address>
 ```
-Then, you can proceed with the initial run Docker command and simply copy the authentication URL from the terminal to your browser. The redirect will be tunneled to the Raspberry Pi via the SSH tunnel.
+
+Then, you can proceed with the initial run Docker command and simply copy the authentication URL from the terminal to
+your browser. The redirect will be tunneled to the Raspberry Pi via the SSH tunnel.
 
 ### Launchd on MacOS
+
 To launch the program on startup and keep it running in the background you can use *launchd* (on Mac)
-or *systemd* (on Linux). On Mac right click [here](https://raw.githubusercontent.com/nov1n/RemarkablePocket/main/nl.carosi.remarkable-pocket.plist) and click "Save Link As...". Then move the downloaded file to `~/Library/LaunchAgents/`. Finally run `launchctl load -w ~/Library/LaunchAgents/nl.carosi.remarkable-pocket.plist` in a terminal. Logs will be sent to `~/.remarkable-pocket.log`.
+or *systemd* (on Linux). On Mac right
+click [here](https://raw.githubusercontent.com/nov1n/RemarkablePocket/main/nl.carosi.remarkable-pocket.plist) and
+click "Save Link As...". Then move the downloaded file to `~/Library/LaunchAgents/`. Finally
+run `launchctl load -w ~/Library/LaunchAgents/nl.carosi.remarkable-pocket.plist` in a terminal. Logs will be sent
+to `~/.remarkable-pocket.log`.
 
 ## Configuration
 
@@ -149,6 +162,7 @@ Request.
 if you want to say thanks. :-)
 
 ## Disclaimer
+
 The author(s) and contributor(s) are not associated with reMarkable AS, Norway. reMarkable is a registered trademark of
 reMarkable AS in some countries. Please see https://remarkable.com for their product.
 

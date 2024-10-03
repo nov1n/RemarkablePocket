@@ -1,25 +1,26 @@
 package nl.carosi.remarkablepocket;
 
-import static javax.xml.xpath.XPathConstants.NODE;
-import static nl.carosi.remarkablepocket.ArticleDownloader.POCKET_ID_SEPARATOR;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 import nl.carosi.remarkablepocket.model.DocumentMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.xml.SimpleNamespaceContext;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
+
+import static javax.xml.xpath.XPathConstants.NODE;
+import static nl.carosi.remarkablepocket.ArticleDownloader.POCKET_ID_SEPARATOR;
 
 final class MetadataProvider {
     private static final Logger LOG = LoggerFactory.getLogger(MetadataProvider.class);
@@ -56,7 +57,7 @@ final class MetadataProvider {
         try (ZipFile zip = new ZipFile(rmapi.download(name).toFile())) {
             String fileHash = zip.entries().nextElement().getName().split("\\.")[0];
             try (InputStream linesStream = zip.getInputStream(zip.getEntry(fileHash + ".content"));
-                    InputStream epubStream = zip.getInputStream(zip.getEntry(fileHash + ".epub"))) {
+                 InputStream epubStream = zip.getInputStream(zip.getEntry(fileHash + ".epub"))) {
                 String contentFile = new String(linesStream.readAllBytes());
                 LOG.trace(".content file of {}: {}", fileHash, contentFile);
                 int pageCount = objectMapper.readValue(contentFile, Lines.class).pageCount();
@@ -101,5 +102,6 @@ final class MetadataProvider {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record Lines(int pageCount) {}
+    private record Lines(int pageCount) {
+    }
 }
