@@ -25,48 +25,39 @@ public class PocketAuthenticator {
     private static final Logger LOG = LoggerFactory.getLogger(PocketAuthenticator.class);
     private static final String CONSUMER_KEY = "99428-51e4648a4528a1faa799c738";
     private static final String TOKEN_PROPERTY = "pocket.access.token";
+    private static final String POCKET_AUTH_FILE = ".pocket-auth";
     private final Path authFile;
     private final int port;
 
     public PocketAuthenticator(
-            @Value("${pocket.auth.file}") Path authFile,
+            @Value("${config.dir}") Path configDir,
             @Value("${pocket.server.port}") int port) {
-        this.authFile = authFile;
+        this.authFile = configDir.resolve(POCKET_AUTH_FILE);
         this.port = port;
     }
 
     public PocketAuth getAuth() throws IOException {
-        Path authDirPath = authFile.getParent();
-        if (Files.notExists(authDirPath)) {
-            Files.createDirectories(authDirPath);
-        }
-
-        // TODO: Sometimes a directory is created, figure out why
-        if (Files.isDirectory(authFile)) {
-            Files.delete(authFile);
-        }
-
-        if (Files.exists(authFile) && Files.size(authFile) > 0) {
-            return authFromFile(authFile);
+        if (Files.exists(authFile)) {
+            return authFromFile();
         } else {
-            return authAndStore(authFile);
+            return authAndStore();
         }
     }
 
-    private PocketAuth authFromFile(Path authFilePath) throws IOException {
+    private PocketAuth authFromFile() throws IOException {
         Properties properties = new Properties();
-        try (InputStream authStream = Files.newInputStream(authFilePath)) {
+        try (InputStream authStream = Files.newInputStream(authFile)) {
             properties.load(authStream);
         }
         return PocketAuthFactory.createForAccessToken(
                 CONSUMER_KEY, properties.getProperty(TOKEN_PROPERTY));
     }
 
-    private PocketAuth authAndStore(Path authFilePath) throws IOException {
+    private PocketAuth authAndStore() throws IOException {
         PocketAuth auth = authenticate();
         Properties properties = new Properties();
         properties.setProperty(TOKEN_PROPERTY, auth.getAccessToken());
-        try (OutputStream authStream = Files.newOutputStream(authFilePath)) {
+        try (OutputStream authStream = Files.newOutputStream(authFile)) {
             properties.store(authStream, null);
         }
         return auth;

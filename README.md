@@ -53,11 +53,11 @@ from https://docs.docker.com/get-docker/. Then run the following command to star
 have not tested it on Windows yet):
 
 ```
-touch ~/.remarkable-pocket ~/.rmapi && mkdir -p ~/.rmapi-cache && docker run -it --env TZ=Europe/Amsterdam -p 65112:65112 -v ~/.remarkable-pocket:/root/.remarkable-pocket -v ~/.rmapi:/root/.rmapi -v ~/.rmapi-cache:/root/.cache/rmapi ghcr.io/nov1n/remarkable-pocket:0.6.0
+mkdir -p ~/.remarkable-pocket && docker run -it --env TZ=Europe/Amsterdam -p 65112:65112 -v ~/.remarkable-pocket:/root/.remarkable-pocket ghcr.io/nov1n/remarkable-pocket:0.6.0
 ```
 
 The first time you run the application, you will be asked to authorize Pocket and Remarkable Cloud. Once you have done
-this subsequent runs will read the credentials from the `~/.remarkable-pocket` and `~/.rmapi` files. You can also change
+this subsequent runs will read the credentials from configuration files in the `~/.remarkable-pocket` directory. You can also change
 the timezone in the command to match your location.
 
 By default, articles are synchronized to the `/Pocket/` directory on the Remarkable every 60 minutes.
@@ -83,39 +83,31 @@ ssh -L 65112:localhost:65112 <rpi username>@<rpi ip address>
 Then, you can proceed with the initial run Docker command and simply copy the authentication URL from the terminal to
 your browser. The redirect will be tunneled to the Raspberry Pi via the SSH tunnel.
 
-### Launchd on MacOS
-
-To launch the program on startup and keep it running in the background you can use *launchd* (on Mac)
-or *systemd* (on Linux). On Mac right
-click [here](https://raw.githubusercontent.com/nov1n/RemarkablePocket/main/nl.carosi.remarkable-pocket.plist) and
-click "Save Link As...". Then move the downloaded file to `~/Library/LaunchAgents/`. Finally
-run `launchctl load -w ~/Library/LaunchAgents/nl.carosi.remarkable-pocket.plist` in a terminal. Logs will be sent
-to `~/.remarkable-pocket.log`.
-
 ## Configuration
 
 The default configuration can be changed by providing command-line arguments. Simply append these to the `docker run`
 command. Below is a list of all available options.
 
 ```
-Usage: remarkable-pocket [-hnorV] [-d=<storageDir>] [-f=<tagFilter>] [-i=<interval>] [-l=<articleLimit>]
+Usage: remarkable-pocket [-hnorvV] [-d=<storageDir>] [-f=<tagFilter>] [-i=<interval>] [-l=<articleLimit>]
 Synchronizes articles from Pocket to the Remarkable tablet.
+  -o, --run-once     Run the synchronization once and then exit.
+  -r, --reset        Resets all configuration before starting.
   -f, --tag-filter=<tagFilter>
-                            Only download Pocket articles with the this tag.
-  -o, --run-once            Run the synchronization once and then exit.
-  -n, --no-archive          Don't archive read articles.
+                     Only download Pocket articles with the this tag.
+  -n, --no-archive   Don't archive read articles.
   -l, --article-limit=<articleLimit>
-                            The maximum number of Pocket articles to be present on the Remarkable.
-                              Default: 10
-  -i, --interval=<interval> The interval between subsequent synchronizations.
-                              Default: 60m
+                     The maximum number of Pocket articles to be present on the Remarkable.
+                       Default: 10
+  -i, --interval=<interval>
+                     The interval between subsequent synchronizations.
+                       Default: 60m
   -d, --storage-dir=<storageDir>
-                            The storage directory on the Remarkable in which to store downloaded Pocket articles.
-                              Default: /Pocket/
-  -v, --verbose             Enable verbose logging.
-  -h, --help                Show this help message and exit.
-  -V, --version             Print version information and exit.
-
+                     The storage directory on the Remarkable in which to store downloaded Pocket articles.
+                       Default: /Pocket/
+  -v, --verbose      Enable debug logging.
+  -h, --help         Show this help message and exit.
+  -V, --version      Print version information and exit.
 ```
 
 ## Frequently Asked Questions (FAQ)

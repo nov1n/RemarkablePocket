@@ -16,9 +16,8 @@ public class ArticleValidator {
     private final Path dbPath;
     private Connection conn;
 
-    public ArticleValidator(@Value("${db.path}") Path dbPath) {
-        this.dbPath = dbPath.resolve(DB_NAME);
-        ;
+    public ArticleValidator(@Value("${config.dir}") Path configDir) {
+        this.dbPath = configDir.resolve(DB_NAME);
         initializeDatabase();
     }
 

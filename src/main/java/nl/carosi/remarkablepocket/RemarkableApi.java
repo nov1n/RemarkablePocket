@@ -28,6 +28,7 @@ import static java.util.function.Predicate.not;
 @DependsOn("pocket") // Forces pocket auth to happen before rm auth
 public class RemarkableApi {
     private static final Logger LOG = LoggerFactory.getLogger(RemarkableApi.class);
+    private static final String RMAPI_CONFIG_FILE = ".rmapi";
     private static final List<String> RMAPI_WARNING_PREFIXES =
             List.of(
                     "Refreshing tree...",
@@ -42,37 +43,14 @@ public class RemarkableApi {
                     : "");
     private final String rmStorageDir;
     private final ObjectMapper objectMapper;
+    private final String rmapiConfig;
     private String workDir;
 
     public RemarkableApi(
-            ObjectMapper objectMapper, @Value("${rm.storage-dir}") String rmStorageDir) {
+            ObjectMapper objectMapper, @Value("${rm.storage-dir}") String rmStorageDir, @Value("${config.dir}") String configDir) {
         this.objectMapper = objectMapper;
         this.rmStorageDir = rmStorageDir;
-    }
-
-    private static List<String> exec(String... command) {
-        return exec(List.<String[]>of(command));
-    }
-
-    private static List<String> exec(List<String[]> commands) {
-        List<ProcessBuilder> builders =
-                commands.stream()
-                        .map(ProcessBuilder::new)
-                        .peek(builder -> LOG.debug("Executing command: {}", builder.command()))
-                        .toList();
-        try {
-            List<Process> processes = ProcessBuilder.startPipeline(builders);
-            Process last = processes.get(processes.size() - 1);
-
-            last.errorReader(UTF_8)
-                    .lines()
-                    .filter(line -> RMAPI_WARNING_PREFIXES.stream().noneMatch(line::startsWith))
-                    .forEach(LOG::error);
-
-            return last.inputReader(UTF_8).lines().peek(LOG::debug).toList();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        this.rmapiConfig = configDir + "/" + RMAPI_CONFIG_FILE;
     }
 
     private static void logStream(InputStream src, Consumer<String> consumer) {
@@ -92,17 +70,48 @@ public class RemarkableApi {
                 .start();
     }
 
+    private List<String> exec(String... command) {
+        return exec(List.<String[]>of(command));
+    }
+
+    private List<String> exec(List<String[]> commands) {
+        List<ProcessBuilder> builders =
+                commands.stream()
+                        .map(this::createProcessBuilder)
+                        .peek(builder -> LOG.debug("Executing command: {}", builder.command()))
+                        .toList();
+        try {
+            List<Process> processes = ProcessBuilder.startPipeline(builders);
+            Process last = processes.get(processes.size() - 1);
+
+            last.errorReader(UTF_8)
+                    .lines()
+                    .filter(line -> RMAPI_WARNING_PREFIXES.stream().noneMatch(line::startsWith))
+                    .forEach(LOG::error);
+
+            return last.inputReader(UTF_8).lines().peek(LOG::debug).toList();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @PostConstruct
     void createWorkDir() throws IOException {
         workDir = Files.createTempDirectory(null).toAbsolutePath().toString();
         LOG.debug("Created temporary working directory: {}.", workDir);
     }
 
+    private ProcessBuilder createProcessBuilder(String... command) {
+        ProcessBuilder processBuilder = new ProcessBuilder(command);
+        processBuilder.environment().put("RMAPI_CONFIG", rmapiConfig);
+        return processBuilder;
+    }
+
     @PostConstruct
     public void login() {
         try {
             Process proc =
-                    new ProcessBuilder(RMAPI_EXECUTABLE, "account").redirectInput(INHERIT).start();
+                    createProcessBuilder(RMAPI_EXECUTABLE, "account").redirectInput(INHERIT).start();
             logStream(proc.getInputStream(), LOG::info);
             logStream(proc.getErrorStream(), LOG::error);
             int exitCode = proc.waitFor();
