@@ -1,11 +1,14 @@
 package nl.carosi.remarkablepocket;
 
+import com.google.common.io.MoreFiles;
+import com.google.common.io.RecursiveDeleteOption;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -96,7 +99,6 @@ class SyncCommand implements Callable<Integer> {
             hidden = true)
     private String authFile;
 
-    // TODO: Create composite logger
     @Option(
             names = {"-v", "--verbose"},
             description = "Enable debug logging.",
@@ -116,41 +118,19 @@ class SyncCommand implements Callable<Integer> {
     }
 
     private static void resetConfiguration(List<String> configurationFiles) {
-        for (String path : configurationFiles) {
-            File file = new File(path);
-            if (file.exists()) {
-                if (file.isDirectory()) {
-                    boolean deleted = deleteDirectory(file);
-                    if (deleted) {
-                        System.out.printf("Successfully deleted directory: %s\n", path);
-                    } else {
-                        System.out.printf("Failed to delete directory: %s\n", path);
-                    }
-                } else {
-                    boolean deleted = file.delete();
-                    if (deleted) {
-                        System.out.printf("Successfully deleted file: %s\n", path);
-                    } else {
-                        System.out.printf("Failed to delete file: %s\n", path);
-                    }
+        for (String pathString : configurationFiles) {
+            Path path = Paths.get(pathString);
+            if (Files.exists(path)) {
+                try {
+                    MoreFiles.deleteRecursively(path, RecursiveDeleteOption.ALLOW_INSECURE);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
+                System.out.printf("Successfully deleted directory: %s%n", pathString);
             } else {
-                System.out.printf("File or directory does not exist: %s, skipping...\n", path);
+                System.out.printf("File or directory does not exist: %s, skipping...%n", pathString);
             }
         }
-    }
-
-    private static boolean deleteDirectory(File directory) {
-        File[] files = directory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    deleteDirectory(file);
-                }
-                file.delete();
-            }
-        }
-        return directory.delete();
     }
 
     private static Path getAppDataPath() {
