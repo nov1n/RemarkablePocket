@@ -1,10 +1,14 @@
 package nl.carosi.remarkablepocket;
 
-import static java.util.concurrent.TimeUnit.MINUTES;
-
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import pl.codeset.pocket.PocketAuth;
+import pl.codeset.pocket.PocketAuthFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,59 +18,46 @@ import java.nio.file.Path;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import pl.codeset.pocket.PocketAuth;
-import pl.codeset.pocket.PocketAuthFactory;
+
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class PocketAuthenticator {
     private static final Logger LOG = LoggerFactory.getLogger(PocketAuthenticator.class);
     private static final String CONSUMER_KEY = "99428-51e4648a4528a1faa799c738";
     private static final String TOKEN_PROPERTY = "pocket.access.token";
-    private final String authFile;
+    private static final String POCKET_AUTH_FILE = ".pocket-auth";
+    private final Path authFile;
     private final int port;
 
     public PocketAuthenticator(
-            @Value("${pocket.auth.file}") String authFile,
+            @Value("${config.dir}") Path configDir,
             @Value("${pocket.server.port}") int port) {
-        this.authFile = authFile;
+        this.authFile = configDir.resolve(POCKET_AUTH_FILE);
         this.port = port;
     }
 
     public PocketAuth getAuth() throws IOException {
-        Path authFilePath = Path.of(authFile);
-        Path authDirPath = authFilePath.getParent();
-        if (Files.notExists(authDirPath)) {
-            Files.createDirectories(authDirPath);
-        }
-
-        // TODO: Sometimes a directory is created, figure out why
-        if (Files.isDirectory(authFilePath)) {
-            Files.delete(authFilePath);
-        }
-
-        if (Files.exists(authFilePath) && Files.size(authFilePath) > 0) {
-            return authFromFile(authFilePath);
+        if (Files.exists(authFile)) {
+            return authFromFile();
         } else {
-            return authAndStore(authFilePath);
+            return authAndStore();
         }
     }
 
-    private PocketAuth authFromFile(Path authFilePath) throws IOException {
+    private PocketAuth authFromFile() throws IOException {
         Properties properties = new Properties();
-        try (InputStream authStream = Files.newInputStream(authFilePath)) {
+        try (InputStream authStream = Files.newInputStream(authFile)) {
             properties.load(authStream);
         }
         return PocketAuthFactory.createForAccessToken(
                 CONSUMER_KEY, properties.getProperty(TOKEN_PROPERTY));
     }
 
-    private PocketAuth authAndStore(Path authFilePath) throws IOException {
+    private PocketAuth authAndStore() throws IOException {
         PocketAuth auth = authenticate();
         Properties properties = new Properties();
         properties.setProperty(TOKEN_PROPERTY, auth.getAccessToken());
-        try (OutputStream authStream = Files.newOutputStream(authFilePath)) {
+        try (OutputStream authStream = Files.newOutputStream(authFile)) {
             properties.store(authStream, null);
         }
         return auth;

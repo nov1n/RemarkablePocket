@@ -1,8 +1,5 @@
 package nl.carosi.remarkablepocket;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 import nl.carosi.remarkablepocket.model.Article;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,12 +8,11 @@ import pl.codeset.pocket.Pocket;
 import pl.codeset.pocket.modify.ArchiveAction;
 import pl.codeset.pocket.modify.ModifyItemCmd;
 import pl.codeset.pocket.modify.ModifyResult;
-import pl.codeset.pocket.read.ContentType;
-import pl.codeset.pocket.read.DetailType;
-import pl.codeset.pocket.read.GetItemsCmd;
-import pl.codeset.pocket.read.ItemState;
-import pl.codeset.pocket.read.PocketItem;
-import pl.codeset.pocket.read.Sort;
+import pl.codeset.pocket.read.*;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 final class PocketService {
     private static final Logger LOG = LoggerFactory.getLogger(PocketService.class);
@@ -29,15 +25,16 @@ final class PocketService {
     }
 
     List<Article> getArticles() throws IOException {
-        GetItemsCmd cmd =
+        GetItemsCmd.Builder cmd =
                 new GetItemsCmd.Builder()
                         .contentType(ContentType.article)
                         .detailType(DetailType.simple)
-                        .tag(tagFilter)
                         .state(ItemState.unread)
-                        .sort(Sort.newest)
-                        .build();
-        List<PocketItem> unreads = pocket.getItems(cmd).getList();
+                        .sort(Sort.newest);
+        if (!tagFilter.isEmpty()) {
+            cmd.tag(tagFilter);
+        }
+        List<PocketItem> unreads = pocket.getItems(cmd.build()).getList();
         return unreads.stream()
                 .map(e -> Article.of(e.getItemId(), e.getResolvedUrl(), e.getResolvedTitle()))
                 .collect(Collectors.toList());

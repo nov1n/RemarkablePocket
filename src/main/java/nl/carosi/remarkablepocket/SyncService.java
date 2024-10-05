@@ -1,15 +1,5 @@
 package nl.carosi.remarkablepocket;
 
-import static java.time.temporal.ChronoUnit.SECONDS;
-import static nl.carosi.remarkablepocket.ConnectivityChecker.ensureConnected;
-
-import java.io.IOException;
-import java.nio.file.Path;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import nl.carosi.remarkablepocket.model.Article;
 import nl.carosi.remarkablepocket.model.DocumentMetadata;
 import org.slf4j.Logger;
@@ -18,6 +8,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Scheduled;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static java.time.temporal.ChronoUnit.SECONDS;
+import static nl.carosi.remarkablepocket.ConnectivityChecker.ensureConnected;
 
 final class SyncService {
     private static final Logger LOG = LoggerFactory.getLogger(SyncService.class);

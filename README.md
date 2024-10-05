@@ -1,7 +1,8 @@
 ![Example article](assets/logo-title.png)
 
 *Remarkable Pocket* synchronizes articles from [Pocket](https://getpocket.com) to
-your [Remarkable](https://remarkable.com/) tablet. It can be run on your computer, on a server, or on your Raspberry Pi. Because it does not
+your [Remarkable](https://remarkable.com/) tablet. It can be run on your computer, on a server, or on your Raspberry Pi.
+Because it does not
 run on the device itself this approach saves battery life, and is resistant to Remarkable software updates.
 
 An example run of the program can be found below:
@@ -52,32 +53,35 @@ from https://docs.docker.com/get-docker/. Then run the following command to star
 have not tested it on Windows yet):
 
 ```
-touch ~/.remarkable-pocket ~/.rmapi && mkdir -p ~/.rmapi-cache && docker run -it --env TZ=Europe/Amsterdam -p 65112:65112 -v ~/.remarkable-pocket:/root/.remarkable-pocket -v ~/.rmapi:/root/.rmapi -v ~/.rmapi-cache:/root/.cache/rmapi ghcr.io/nov1n/remarkable-pocket:0.4.0
+mkdir -p ~/.remarkable-pocket && docker run -it --env TZ=Europe/Amsterdam -p 65112:65112 -v ~/.remarkable-pocket:/root/.remarkable-pocket ghcr.io/nov1n/remarkable-pocket:0.6.0
 ```
 
 The first time you run the application, you will be asked to authorize Pocket and Remarkable Cloud. Once you have done
-this subsequent runs will read the credentials from the `~/.remarkable-pocket` and `~/.rmapi` files. You can also change
+this subsequent runs will read the credentials from configuration files in the `~/.remarkable-pocket` directory. You can also change
 the timezone in the command to match your location.
 
 By default, articles are synchronized to the `/Pocket/` directory on the Remarkable every 60 minutes.
 
 ### Docker Compose
 
-If you prefer to use [Docker Compose](https://docs.docker.com/compose/) first run the command in the [Usage](#usage) section and complete the authentication steps (this only needs to happen once). When syncing starts you can stop the container, download the [docker-compose.yml](docker-compose.yml) file, and run `docker compose up`.
+If you prefer to use [Docker Compose](https://docs.docker.com/compose/) first run the command in the [Usage](#usage)
+section and complete the authentication steps (this only needs to happen once). When syncing starts you can stop the
+container, download the [docker-compose.yml](docker-compose.yml) file, and run `docker compose up`.
 
 ### Raspberry Pi
 
-There is also a Docker image available for the Raspberry Pi, so the command in [Usage](#usage) will work. If you are running the pi in headless mode (without a screen), you have two options to complete the authentication flow. The easiest way is to use a VNC client to connect to the pi when running the program for the first time. 
+There is also a Docker image available for the Raspberry Pi, so the command in [Usage](#usage) will work. If you are
+running the pi in headless mode (without a screen), you have two options to complete the authentication flow. The
+easiest way is to use a VNC client to connect to the pi when running the program for the first time.
 
 Alternatively, you can create an ssh tunnel from your machine to the pi like so:
+
 ```bash
 ssh -L 65112:localhost:65112 <rpi username>@<rpi ip address>
 ```
-Then, you can proceed with the initial run Docker command and simply copy the authentication URL from the terminal to your browser. The redirect will be tunneled to the Raspberry Pi via the SSH tunnel.
 
-### Launchd on MacOS
-To launch the program on startup and keep it running in the background you can use *launchd* (on Mac)
-or *systemd* (on Linux). On Mac right click [here](https://raw.githubusercontent.com/nov1n/RemarkablePocket/main/nl.carosi.remarkable-pocket.plist) and click "Save Link As...". Then move the downloaded file to `~/Library/LaunchAgents/`. Finally run `launchctl load -w ~/Library/LaunchAgents/nl.carosi.remarkable-pocket.plist` in a terminal. Logs will be sent to `~/.remarkable-pocket.log`.
+Then, you can proceed with the initial run Docker command and simply copy the authentication URL from the terminal to
+your browser. The redirect will be tunneled to the Raspberry Pi via the SSH tunnel.
 
 ## Configuration
 
@@ -85,41 +89,36 @@ The default configuration can be changed by providing command-line arguments. Si
 command. Below is a list of all available options.
 
 ```
-Usage: remarkable-pocket [-hnorV] [-d=<storageDir>] [-f=<tagFilter>] [-i=<interval>] [-l=<articleLimit>]
+Usage: remarkable-pocket [-hnorvV] [-d=<storageDir>] [-f=<tagFilter>] [-i=<interval>] [-l=<articleLimit>]
 Synchronizes articles from Pocket to the Remarkable tablet.
+  -o, --run-once     Run the synchronization once and then exit.
+  -r, --reset        Resets all configuration before starting.
   -f, --tag-filter=<tagFilter>
-                            Only download Pocket articles with the this tag.
-  -o, --run-once            Run the synchronization once and then exit.
-  -n, --no-archive          Don't archive read articles.
+                     Only download Pocket articles with the this tag.
+  -n, --no-archive   Don't archive read articles.
   -l, --article-limit=<articleLimit>
-                            The maximum number of Pocket articles to be present on the Remarkable.
-                              Default: 10
-  -i, --interval=<interval> The interval between subsequent synchronizations.
-                              Default: 60m
+                     The maximum number of Pocket articles to be present on the Remarkable.
+                       Default: 10
+  -i, --interval=<interval>
+                     The interval between subsequent synchronizations.
+                       Default: 60m
   -d, --storage-dir=<storageDir>
-                            The storage directory on the Remarkable in which to store downloaded Pocket articles.
-                              Default: /Pocket/
-  -v, --verbose             Enable verbose logging.
-  -h, --help                Show this help message and exit.
-  -V, --version             Print version information and exit.
-
+                     The storage directory on the Remarkable in which to store downloaded Pocket articles.
+                       Default: /Pocket/
+  -v, --verbose      Enable debug logging.
+  -h, --help         Show this help message and exit.
+  -V, --version      Print version information and exit.
 ```
 
 ## Frequently Asked Questions (FAQ)
 
 <details>
-<summary><b>I'm getting a "Could not connect to Pocket" error when running. How can I fix this?</b></summary>
+<summary><b>Something isn't working right, how do I fix it?</b></summary>
 
-This error typically occurs due to outdated or corrupted cache files. To resolve this issue:
+The first step is to run the command once with the `-r` flag. This resets all configuration, and resolves common
+issues. If that doesn't solve your problem feel free to open an issue. Please run the application with the -v flag
+for verbose log output, and attach the logs to the ticket. This helps me help you.
 
-1. Open a terminal
-2. Run the following command:
-```
-rm -rf ~/.remarkable-pocket ~/.rmapi ~/.rmapi-cache
-```
-3. Try running the application again
-
-This command removes the cache directories, allowing the application to create fresh connections.
 </details>
 
 ## Limitations
@@ -155,6 +154,7 @@ Request.
 if you want to say thanks. :-)
 
 ## Disclaimer
+
 The author(s) and contributor(s) are not associated with reMarkable AS, Norway. reMarkable is a registered trademark of
 reMarkable AS in some countries. Please see https://remarkable.com for their product.
 

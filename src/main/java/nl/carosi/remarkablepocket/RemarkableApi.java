@@ -1,11 +1,15 @@
 package nl.carosi.remarkablepocket;
 
-import static java.lang.ProcessBuilder.Redirect.INHERIT;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.function.Predicate.not;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
+import nl.carosi.remarkablepocket.model.Document;
+import org.apache.logging.log4j.util.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.DependsOn;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,17 +20,15 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
-import javax.annotation.PostConstruct;
-import nl.carosi.remarkablepocket.model.Document;
-import org.apache.logging.log4j.util.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.DependsOn;
+
+import static java.lang.ProcessBuilder.Redirect.INHERIT;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.function.Predicate.not;
 
 @DependsOn("pocket") // Forces pocket auth to happen before rm auth
 public class RemarkableApi {
     private static final Logger LOG = LoggerFactory.getLogger(RemarkableApi.class);
+    private static final String RMAPI_CONFIG_FILE = ".rmapi";
     private static final List<String> RMAPI_WARNING_PREFIXES =
             List.of(
                     "Refreshing tree...",
@@ -36,27 +38,46 @@ public class RemarkableApi {
     private static final String RMAPI_EXECUTABLE =
             "/usr/local/bin/rmapi"
                     + ((new File("/.dockerenv").exists() // Running in Docker
-                                    || new File("/run/.containerenv").exists()) // Running in Podman
-                            ? ("_" + System.getProperty("os.arch"))
-                            : "");
+                    || new File("/run/.containerenv").exists()) // Running in Podman
+                    ? ("_" + System.getProperty("os.arch"))
+                    : "");
     private final String rmStorageDir;
     private final ObjectMapper objectMapper;
+    private final String rmapiConfig;
     private String workDir;
 
     public RemarkableApi(
-            ObjectMapper objectMapper, @Value("${rm.storage-dir}") String rmStorageDir) {
+            ObjectMapper objectMapper, @Value("${rm.storage-dir}") String rmStorageDir, @Value("${config.dir}") String configDir) {
         this.objectMapper = objectMapper;
         this.rmStorageDir = rmStorageDir;
+        this.rmapiConfig = configDir + "/" + RMAPI_CONFIG_FILE;
     }
 
-    private static List<String> exec(String... command) {
+    private static void logStream(InputStream src, Consumer<String> consumer) {
+        new Thread(
+                () -> {
+                    Scanner sc = new Scanner(src);
+                    sc.useDelimiter(Pattern.compile("\\n|\\): "));
+                    while (sc.hasNext()) {
+                        String token = sc.next();
+                        if (token.startsWith("Enter one-time code")) {
+                            consumer.accept(token + "):");
+                        } else {
+                            consumer.accept(token);
+                        }
+                    }
+                })
+                .start();
+    }
+
+    private List<String> exec(String... command) {
         return exec(List.<String[]>of(command));
     }
 
-    private static List<String> exec(List<String[]> commands) {
+    private List<String> exec(List<String[]> commands) {
         List<ProcessBuilder> builders =
                 commands.stream()
-                        .map(ProcessBuilder::new)
+                        .map(this::createProcessBuilder)
                         .peek(builder -> LOG.debug("Executing command: {}", builder.command()))
                         .toList();
         try {
@@ -74,34 +95,23 @@ public class RemarkableApi {
         }
     }
 
-    private static void logStream(InputStream src, Consumer<String> consumer) {
-        new Thread(
-                        () -> {
-                            Scanner sc = new Scanner(src);
-                            sc.useDelimiter(Pattern.compile("\\n|\\): "));
-                            while (sc.hasNext()) {
-                                String token = sc.next();
-                                if (token.startsWith("Enter one-time code")) {
-                                    consumer.accept(token + "):");
-                                } else {
-                                    consumer.accept(token);
-                                }
-                            }
-                        })
-                .start();
-    }
-
     @PostConstruct
     void createWorkDir() throws IOException {
         workDir = Files.createTempDirectory(null).toAbsolutePath().toString();
         LOG.debug("Created temporary working directory: {}.", workDir);
     }
 
+    private ProcessBuilder createProcessBuilder(String... command) {
+        ProcessBuilder processBuilder = new ProcessBuilder(command);
+        processBuilder.environment().put("RMAPI_CONFIG", rmapiConfig);
+        return processBuilder;
+    }
+
     @PostConstruct
     public void login() {
         try {
             Process proc =
-                    new ProcessBuilder(RMAPI_EXECUTABLE, "account").redirectInput(INHERIT).start();
+                    createProcessBuilder(RMAPI_EXECUTABLE, "account").redirectInput(INHERIT).start();
             logStream(proc.getInputStream(), LOG::info);
             logStream(proc.getErrorStream(), LOG::error);
             int exitCode = proc.waitFor();
@@ -115,26 +125,26 @@ public class RemarkableApi {
 
     public Path download(String articleName) {
         exec(RMAPI_EXECUTABLE, "-ni", "get", rmStorageDir + articleName);
-        exec("mv", articleName + ".zip", workDir);
+        exec("mv", articleName + ".rmdoc", workDir + "/" + articleName + ".zip");
         return Path.of(workDir, articleName + ".zip");
     }
 
     public List<String> list() {
         return exec(
                 List.of(
-                        new String[] {RMAPI_EXECUTABLE, "-ni", "ls", rmStorageDir},
-                        new String[] {"grep", "^\\[f\\]"},
-                        new String[] {"cut", "-b5-"}));
+                        new String[]{RMAPI_EXECUTABLE, "-ni", "ls", rmStorageDir},
+                        new String[]{"grep", "^\\[f\\]"},
+                        new String[]{"cut", "-b5-"}));
     }
 
     public Document info(String articleName) {
         List<String> info =
                 exec(
                         List.of(
-                                new String[] {
-                                    RMAPI_EXECUTABLE, "-ni", "stat", rmStorageDir + articleName
+                                new String[]{
+                                        RMAPI_EXECUTABLE, "-ni", "stat", rmStorageDir + articleName
                                 },
-                                new String[] {"sed", "/{/,$!d"}));
+                                new String[]{"sed", "/{/,$!d"}));
         try {
             return objectMapper.readValue(Strings.join(info, '\n'), Document.class);
         } catch (JsonProcessingException e) {

@@ -1,18 +1,29 @@
 plugins {
-    id "org.springframework.boot" version "2.5.5"
-    id "io.spring.dependency-management" version "1.0.11.RELEASE"
-    id "com.google.cloud.tools.jib" version "3.3.0"
-    id "com.github.johnrengelman.shadow" version "7.1.0"
+    id "org.springframework.boot" version "3.3.4"
+    id "io.spring.dependency-management" version "1.1.6"
+    id "com.google.cloud.tools.jib" version "3.4.3"
+    id "com.github.johnrengelman.shadow" version "8.1.1"
     id "java"
 }
 
 group = "nl.carosi"
-version = "0.4.0"
+version = "0.6.0"
 
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
+}
+
+tasks.register('createVersionFile') {
+    doLast {
+        def versionFile = file("$buildDir/resources/main/version.properties")
+        versionFile.text = "version=${project.version}\n"
+    }
+}
+
+tasks.named('processResources') {
+    dependsOn 'createVersionFile'
 }
 
 jib {
@@ -61,15 +72,16 @@ dependencies {
     implementation("com.positiondev.epublib:epublib-core:3.1") {
         exclude group: "org.slf4j"
     }
-    implementation "net.lingala.zip4j:zip4j:1.2.4"
-    implementation "info.picocli:picocli:4.6.1"
-    implementation "com.fasterxml.jackson.core:jackson-core:2.13.0"
-    implementation "com.google.guava:guava:31.0.1-jre"
-    implementation "com.github.tchudyk:pocket-integration:1.2.0"
-    implementation "org.springframework:spring-aspects:5.3.11"
-    implementation "org.springframework.retry:spring-retry:1.3.1"
-    implementation "org.springframework.boot:spring-boot-starter-web:2.5.5"
-    testImplementation "org.springframework.boot:spring-boot-starter-test:2.5.5"
+    implementation "com.fasterxml.jackson.core:jackson-core:2.18.0"
+    implementation "com.github.tchudyk:pocket-integration:1.2.2"
+    implementation "com.google.guava:guava:33.3.1-jre"
+    implementation "info.picocli:picocli:4.7.6"
+    implementation "net.lingala.zip4j:zip4j:2.11.5"
+    implementation "org.springframework.boot:spring-boot-starter-web:3.3.4"
+    implementation "org.springframework.retry:spring-retry:2.0.9"
+    implementation "org.springframework:spring-aspects:6.1.13"
+    implementation 'org.xerial:sqlite-jdbc:3.46.1.3'
+    testImplementation "org.springframework.boot:spring-boot-starter-test:3.3.4"
 }
 
 test {
