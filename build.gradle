@@ -3,6 +3,7 @@ plugins {
     id "io.spring.dependency-management" version "1.1.6"
     id "com.google.cloud.tools.jib" version "3.4.3"
     id "com.github.johnrengelman.shadow" version "8.1.1"
+    id "com.diffplug.spotless" version "7.0.2"
     id "java"
 }
 
@@ -24,6 +25,18 @@ tasks.register('createVersionFile') {
 
 tasks.named('processResources') {
     dependsOn 'createVersionFile'
+}
+
+// Formatting
+tasks.compileJava.dependsOn 'spotlessApply'
+spotless {
+  java {
+    importOrder()
+    removeUnusedImports()
+    cleanthat()
+    googleJavaFormat()
+    formatAnnotations()
+  }
 }
 
 jib {
