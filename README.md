@@ -1,6 +1,6 @@
 ![Example article](assets/logo-title.png)
 
-*Remarkable Pocket* synchronizes articles from [Pocket](https://getpocket.com) to
+_Remarkable Pocket_ synchronizes articles from [Pocket](https://getpocket.com) to
 your [Remarkable](https://remarkable.com/) tablet. It can be run on your computer, on a server, or on your Raspberry Pi.
 Because it does not
 run on the device itself this approach saves battery life, and is resistant to Remarkable software updates.
@@ -49,11 +49,11 @@ An example run of the program can be found below:
 ## Usage
 
 The easiest way to run the application is using Docker. First install Docker for your platform
-from https://docs.docker.com/get-docker/. Then run the following command to start the application on Linux or Mac (I
+from <https://docs.docker.com/get-docker/>. Then run the following command to start the application on Linux or Mac (I
 have not tested it on Windows yet):
 
 ```
-mkdir -p ~/.remarkable-pocket && docker run -it --env TZ=Europe/Amsterdam -p 65112:65112 -v ~/.remarkable-pocket:/root/.remarkable-pocket ghcr.io/nov1n/remarkable-pocket:0.6.0
+mkdir -p ~/.remarkable-pocket && docker run -it --env TZ=Europe/Amsterdam -p 65112:65112 -v ~/.remarkable-pocket:/root/.remarkable-pocket ghcr.io/nov1n/remarkable-pocket:0.7.1
 ```
 
 The first time you run the application, you will be asked to authorize Pocket and Remarkable Cloud. Once you have done
@@ -145,8 +145,8 @@ Request.
 
 ## Thanks
 
-- https://epub.press/ for providing a free epub generator API. Consider donating to support this project.
-- https://github.com/juruen/rmapi for providing a client for the Remarkable Cloud.
+- <https://epub.press/> for providing a free epub generator API. Consider donating to support this project.
+- <https://github.com/juruen/rmapi> for providing a client for the Remarkable Cloud.
 
 ## Support
 
@@ -156,7 +156,7 @@ if you want to say thanks. :-)
 ## Disclaimer
 
 The author(s) and contributor(s) are not associated with reMarkable AS, Norway. reMarkable is a registered trademark of
-reMarkable AS in some countries. Please see https://remarkable.com for their product.
+reMarkable AS in some countries. Please see <https://remarkable.com> for their product.
 
 RemarkablePocket uses rmapi to connect to Remarkable cloud. The newly released sync protocol is not yet tested through
 and may contain bugs.

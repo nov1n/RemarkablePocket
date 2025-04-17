@@ -1,6 +1,6 @@
 services:
   remarkable-pocket:
-    image: ghcr.io/nov1n/remarkable-pocket:0.6.0
+    image: ghcr.io/nov1n/remarkable-pocket:0.7.1
     restart: unless-stopped
     environment:
       - TZ=Europe/Amsterdam
