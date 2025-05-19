@@ -146,7 +146,7 @@ Request.
 ## Thanks
 
 - <https://epub.press/> for providing a free epub generator API. Consider donating to support this project.
-- <https://github.com/juruen/rmapi> for providing a client for the Remarkable Cloud.
+- <https://github.com/ddvk/rmapi> for providing a client for the Remarkable Cloud.
 
 ## Support
 

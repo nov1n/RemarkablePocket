@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "nl.carosi"
-version = "0.7.1"
+version = "0.7.2"
 
 java {
     toolchain {

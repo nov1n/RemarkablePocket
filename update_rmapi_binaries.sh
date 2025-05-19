@@ -1,13 +1,18 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # $1: The tag to update to, or latest if undefined
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
 git clone git@github.com:ddvk/rmapi.git
 cd rmapi || exit
+
 git fetch
-git checkout "${1:-$(git tag --sort=-creatordate | head -n 1)}"
+LATEST_TAG=$(git tag --sort=-creatordate | head -n 1)
+git checkout "${1:-${LATEST_TAG}}"
+echo "${LATEST_TAG}" >"${SCRIPT_DIR}/RMAPI_VERSION"
 
 move() {
   mv rmapi "${SCRIPT_DIR}"/src/main/jib/usr/local/bin/rmapi_"${1}"
